@@ -1,0 +1,16 @@
+{
+  "target": "0x020D088990881411Fb9f5db119C932Ad82B79c1b",
+  "analyzed_at": 1774614943,
+  "latest_block": 34054697,
+  "scanned_blocks": 200,
+  "balance_usdc": 18.912967,
+  "outgoing_tx_count": 7,
+  "is_contract": false,
+  "recent_sent_count": 0,
+  "recent_recv_count": 0,
+  "recent_sent_volume": 0,
+  "recent_recv_volume": 0,
+  "unique_counterparties": 0,
+  "risk_score": 0,
+  "risk_label": "LOW"
+}
