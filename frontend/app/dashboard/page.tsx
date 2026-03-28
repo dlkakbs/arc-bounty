@@ -4,8 +4,7 @@ import { useReadContract, useReadContracts } from "wagmi";
 import { BOUNTY_REGISTRY_ADDRESS, BOUNTY_REGISTRY_ABI } from "@/lib/contract";
 
 const IDENTITY_REGISTRY_ABI = [
-  { name: "balanceOf",   type: "function", stateMutability: "view", inputs: [{ name: "owner", type: "address" }], outputs: [{ type: "uint256" }] },
-  { name: "totalSupply", type: "function", stateMutability: "view", inputs: [], outputs: [{ type: "uint256" }] },
+  { name: "balanceOf", type: "function", stateMutability: "view", inputs: [{ name: "owner", type: "address" }], outputs: [{ type: "uint256" }] },
 ] as const;
 const IDENTITY_REGISTRY = "0x8004A818BFB912233c491871b3d84c89A494BD9e" as const;
 import { formatEther } from "viem";
@@ -57,12 +56,23 @@ export default function Dashboard() {
     creators.map((addr, i) => [addr.toLowerCase(), Number(creatorIdentityReads.data?.[i]?.result ?? 0) > 0])
   );
 
-  const { data: registeredAgentCount } = useReadContract({
-    address: IDENTITY_REGISTRY,
-    abi: IDENTITY_REGISTRY_ABI,
-    functionName: "totalSupply",
+  const IDENTITY_REGISTRY_OWNEROF_ABI = [
+    { name: "ownerOf", type: "function", stateMutability: "view",
+      inputs: [{ name: "tokenId", type: "uint256" }], outputs: [{ type: "address" }] },
+  ] as const;
+  const tokenIdRange = Array.from({ length: 30 }, (_, i) => BigInt(i + 1));
+  const ownerOfReads = useReadContracts({
+    contracts: tokenIdRange.map((id) => ({
+      address: IDENTITY_REGISTRY,
+      abi: IDENTITY_REGISTRY_OWNEROF_ABI,
+      functionName: "ownerOf" as const,
+      args: [id],
+    })),
     query: { refetchInterval: 10_000 },
   });
+  const registeredAgentCount = (ownerOfReads.data ?? []).filter(
+    (d) => d.status === "success" && d.result && d.result !== "0x0000000000000000000000000000000000000000"
+  ).length;
 
   const openBounties = bounties.filter((b) => b && b[7] === 0);
   const totalLocked = openBounties.reduce((acc: bigint, b: any) => acc + BigInt(b[2] ?? 0), BigInt(0));
@@ -86,7 +96,7 @@ export default function Dashboard() {
           { val: count.toString(),                                                     label:'Total Bounties',    color:'var(--amber)' },
           { val: openBounties.length.toString(),                                      label:'Open Bounties',     color:'var(--green)' },
           { val: `$${parseFloat(formatEther(totalLocked)).toFixed(0)}`,               label:'USDC Locked',       color:'var(--amber)' },
-          { val: Number(registeredAgentCount ?? 0).toString(),                        label:'Registered Agents', color:'var(--green)' },
+          { val: registeredAgentCount.toString(),                                      label:'Registered Agents', color:'var(--green)' },
           { val: totalAgents.toString(),                                               label:'Active Agents',     color:'var(--text)'  },
         ].map(({ val, label, color }) => (
           <div key={label} style={{
@@ -102,7 +112,7 @@ export default function Dashboard() {
 
       {/* Recent bounties */}
       <p className="section-label">// Recent Bounties</p>
-      {true ? (
+      {recentIds.length === 0 ? (
         <p style={{ color:'var(--muted)', fontSize:'0.75rem' }}>
           No bounties yet.{' '}
           <a href="/create" style={{ color:'var(--amber)' }}>Create the first one.</a>
