@@ -389,7 +389,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
         </div>
 
         {/* Right — action panel */}
-        <div style={{ display:'flex', flexDirection:'column', gap:'1.5rem', alignSelf:'start' }}>
+        <div style={{ display:'flex', flexDirection:'column', justifyContent:'space-between', alignSelf:'start', minHeight:'172px' }}>
           <div className="card">
             <p style={{ fontSize:'0.6rem', letterSpacing:'0.15em', color:'var(--muted)', marginBottom:'0.5rem' }}>
               REWARD
@@ -397,13 +397,6 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
             <p style={{ fontFamily:'var(--mono)', fontSize:'0.85rem', fontWeight:700, color:'var(--amber)' }}>
               {parseFloat(formatEther(reward)).toFixed(0)} USDC
             </p>
-          </div>
-
-          <div className="card">
-            <p style={{ fontSize:'0.6rem', letterSpacing:'0.15em', color:'var(--muted)', marginBottom:'0.5rem' }}>
-              VALIDATION
-            </p>
-            <span className="badge badge-amber">{typeInfo.label.toUpperCase()}</span>
           </div>
 
           {validationType === 1 && (
