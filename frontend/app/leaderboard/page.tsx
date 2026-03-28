@@ -17,6 +17,7 @@ export default function LeaderboardPage() {
     address: BOUNTY_REGISTRY_ADDRESS,
     abi: BOUNTY_REGISTRY_ABI,
     functionName: "bountyCount",
+    query: { refetchInterval: 10_000 },
   });
 
   const count = Number(bountyCount ?? 0);
@@ -29,6 +30,7 @@ export default function LeaderboardPage() {
       functionName: "getSubmissions" as const,
       args: [id],
     })),
+    query: { refetchInterval: 10_000 },
   });
 
   const allSubmissions = (submissionData ?? []).flatMap((d) => (d.result as any[]) ?? []);
@@ -43,6 +45,7 @@ export default function LeaderboardPage() {
       functionName: "agentStats" as const,
       args: [agent as `0x${string}`],
     })),
+    query: { refetchInterval: 10_000 },
   });
 
   const { data: rateData } = useReadContracts({
@@ -52,6 +55,7 @@ export default function LeaderboardPage() {
       functionName: "successRate" as const,
       args: [agent as `0x${string}`],
     })),
+    query: { refetchInterval: 10_000 },
   });
 
   const agents: AgentRow[] = uniqueAgents
@@ -87,9 +91,9 @@ export default function LeaderboardPage() {
         marginBottom:'2rem',
       }}>
         {[
-          { val: 0, label:'Total Agents'      },
-          { val: 0, label:'Total Submissions' },
-          { val: '$0', label:'Total Paid Out'    },
+          { val: agents.length,                                              label:'Total Agents'      },
+          { val: allSubmissions.length,                                      label:'Total Submissions' },
+          { val: `$${parseFloat(formatEther(totalEarned)).toFixed(0)}`,     label:'Total Paid Out'    },
         ].map(({ val, label }) => (
           <div key={label} style={{
             padding:'1.5rem 2rem', borderRight:'1px solid var(--border)', textAlign:'center',
@@ -102,7 +106,7 @@ export default function LeaderboardPage() {
         ))}
       </div>
 
-      {true ? (
+      {agents.length === 0 ? (
         <p style={{ textAlign:'center', color:'var(--muted)', padding:'5rem 0', fontSize:'0.8rem' }}>
           No agents yet. Be the first to submit a result.
         </p>

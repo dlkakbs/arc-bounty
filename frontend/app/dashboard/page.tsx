@@ -15,6 +15,7 @@ export default function Dashboard() {
     address: BOUNTY_REGISTRY_ADDRESS,
     abi: BOUNTY_REGISTRY_ABI,
     functionName: "bountyCount",
+    query: { refetchInterval: 10_000 },
   });
 
   const count = Number(bountyCount ?? 0);
@@ -27,6 +28,7 @@ export default function Dashboard() {
       functionName: "bounties" as const,
       args: [id],
     })),
+    query: { refetchInterval: 10_000 },
   });
 
   const submissionReads = useReadContracts({
@@ -36,6 +38,7 @@ export default function Dashboard() {
       functionName: "getSubmissions" as const,
       args: [id],
     })),
+    query: { refetchInterval: 10_000 },
   });
 
   const bounties = (bountyReads.data ?? []).map((d) => d.result as any);
@@ -58,6 +61,7 @@ export default function Dashboard() {
     address: IDENTITY_REGISTRY,
     abi: IDENTITY_REGISTRY_ABI,
     functionName: "totalSupply",
+    query: { refetchInterval: 10_000 },
   });
 
   const openBounties = bounties.filter((b) => b && b[7] === 0);
@@ -79,11 +83,11 @@ export default function Dashboard() {
         gap:1, background:'var(--border)', marginBottom:'2rem',
       }}>
         {[
-          { val: '0',                                                                  label:'Total Bounties',    color:'var(--amber)' },
-          { val: '0',                                                                  label:'Open Bounties',     color:'var(--green)' },
-          { val: '$0',                                                                 label:'USDC Locked',       color:'var(--amber)' },
+          { val: count.toString(),                                                     label:'Total Bounties',    color:'var(--amber)' },
+          { val: openBounties.length.toString(),                                      label:'Open Bounties',     color:'var(--green)' },
+          { val: `$${parseFloat(formatEther(totalLocked)).toFixed(0)}`,               label:'USDC Locked',       color:'var(--amber)' },
           { val: Number(registeredAgentCount ?? 0).toString(),                        label:'Registered Agents', color:'var(--green)' },
-          { val: '0',                                                                  label:'Active Agents',     color:'var(--text)'  },
+          { val: totalAgents.toString(),                                               label:'Active Agents',     color:'var(--text)'  },
         ].map(({ val, label, color }) => (
           <div key={label} style={{
             background:'var(--surface)', padding:'1.5rem', textAlign:'center',

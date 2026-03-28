@@ -19,6 +19,7 @@ export default function BountiesPage() {
     address: BOUNTY_REGISTRY_ADDRESS,
     abi: BOUNTY_REGISTRY_ABI,
     functionName: "bountyCount",
+    query: { refetchInterval: 10_000 },
   });
 
   const count = Number(bountyCount ?? 0);
@@ -31,6 +32,7 @@ export default function BountiesPage() {
       functionName: "bounties" as const,
       args: [id],
     })),
+    query: { refetchInterval: 10_000 },
   });
 
   const { data: submissionData } = useReadContracts({
@@ -40,6 +42,7 @@ export default function BountiesPage() {
       functionName: "getSubmissions" as const,
       args: [id],
     })),
+    query: { refetchInterval: 10_000 },
   });
 
   const bounties = (bountyData ?? []).map((d) => d.result as any);
@@ -61,7 +64,12 @@ export default function BountiesPage() {
     return Number(b[7]) === filterStatus;
   });
 
-  const countByStatus = (_status: number | null) => 0;
+  const countByStatus = (status: number | null) =>
+    ids.filter((id) => {
+      const b = bounties[Number(id) - 1];
+      if (!b) return false;
+      return status === null ? true : Number(b[7]) === status;
+    }).length;
 
   return (
     <main className="section">
@@ -98,7 +106,7 @@ export default function BountiesPage() {
         <div style={{ textAlign:'center', padding:'6rem 2rem', color:'var(--muted)', fontSize:'0.8rem' }}>
           Loading...
         </div>
-      ) : true ? (
+      ) : filteredIds.length === 0 ? (
         <div style={{
           textAlign:'center', padding:'6rem 2rem',
           color:'var(--muted)', fontSize:'0.8rem', letterSpacing:'0.1em',
