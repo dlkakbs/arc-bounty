@@ -90,7 +90,7 @@ export default function Dashboard() {
 
       {/* Recent bounties */}
       <p className="section-label">// Recent Bounties</p>
-      {count === 0 ? (
+      {true ? (
         <p style={{ color:'var(--muted)', fontSize:'0.75rem' }}>
           No bounties yet.{' '}
           <a href="/create" style={{ color:'var(--amber)' }}>Create the first one.</a>

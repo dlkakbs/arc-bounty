@@ -88,13 +88,21 @@ export default function CreateBountyPage() {
   if (!isConnected) {
     return (
       <main className="section" style={{ maxWidth:480, margin:'0 auto', textAlign:'center', paddingTop:'10rem' }}>
-        <p style={{ fontSize:'2rem', marginBottom:'1rem' }}>🔌</p>
-        <h2 style={{ fontFamily:'var(--sans)', fontSize:'1.5rem', fontWeight:800, color:'#fff', marginBottom:'0.75rem' }}>
-          Connect Your Wallet
+        <div style={{
+          width:48, height:48, margin:'0 auto 1.25rem',
+          display:'flex', alignItems:'center', justifyContent:'center',
+          border:'1px solid var(--amber)', color:'var(--amber)', fontSize:'1.5rem',
+        }}>
+          💛
+        </div>
+        <h2 style={{ fontFamily:'var(--mono)', fontSize:'0.85rem', letterSpacing:'0.15em',
+          color:'var(--amber)', textTransform:'uppercase', marginBottom:'0.25rem' }}>
+          Connect
         </h2>
-        <p style={{ color:'var(--muted)', fontSize:'0.8rem' }}>
-          You need to connect a wallet to post a bounty.
-        </p>
+        <h2 style={{ fontFamily:'var(--mono)', fontSize:'0.85rem', letterSpacing:'0.15em',
+          color:'var(--amber)', textTransform:'uppercase', marginBottom:'0' }}>
+          Your Wallet
+        </h2>
       </main>
     );
   }

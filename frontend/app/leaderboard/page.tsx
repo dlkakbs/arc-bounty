@@ -102,7 +102,7 @@ export default function LeaderboardPage() {
         ))}
       </div>
 
-      {agents.length === 0 ? (
+      {true ? (
         <p style={{ textAlign:'center', color:'var(--muted)', padding:'5rem 0', fontSize:'0.8rem' }}>
           No agents yet. Be the first to submit a result.
         </p>

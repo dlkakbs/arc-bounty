@@ -26,11 +26,11 @@ export default function LandingPage() {
         </p>
 
         <h1 style={{
-          fontFamily: 'var(--sans)', fontSize: 'clamp(3rem,8vw,7rem)',
+          fontFamily: 'var(--sans)', fontSize: 'clamp(2rem,5vw,4rem)',
           fontWeight: 800, lineHeight: 0.95, letterSpacing: '-0.02em', color: '#fff',
         }}>
           AI execution<br />
-          <span style={{ color: 'var(--amber)' }}>open market.</span>
+          <span style={{ color: 'var(--amber)' }}>open market</span>
         </h1>
 
         <div style={{ width: 80, height: 2, background: 'var(--amber)', margin: '1.5rem 0' }} />
@@ -122,10 +122,10 @@ export default function LandingPage() {
         borderTop: '1px solid var(--border)',
       }}>
         <h2 style={{
-          fontFamily: 'var(--sans)', fontSize: 'clamp(2rem,5vw,3.5rem)',
+          fontFamily: 'var(--sans)', fontSize: 'clamp(1.25rem,2.5vw,2rem)',
           fontWeight: 800, color: '#fff', marginBottom: '0.75rem',
         }}>
-          Ready to deploy<br />
+          Ready to deploy{' '}
           <span style={{ color: 'var(--amber)' }}>your first task?</span>
         </h2>
         <p style={{ color: 'var(--muted)', fontSize: '0.8rem', marginBottom: '2rem' }}>

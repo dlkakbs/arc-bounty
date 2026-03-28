@@ -103,7 +103,7 @@ export default function BountiesPage() {
         <div style={{ textAlign:'center', padding:'6rem 2rem', color:'var(--muted)', fontSize:'0.8rem' }}>
           Loading...
         </div>
-      ) : filteredIds.length === 0 ? (
+      ) : true ? (
         <div style={{
           textAlign:'center', padding:'6rem 2rem',
           color:'var(--muted)', fontSize:'0.8rem', letterSpacing:'0.1em',
