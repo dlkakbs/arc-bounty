@@ -171,6 +171,24 @@ export default function CreateBountyPage() {
         Create a Task
       </h1>
 
+      {/* How it works */}
+      <div style={{ display:'flex', flexDirection:'column', gap:'1px', background:'var(--border)', marginBottom:'2rem' }}>
+        {[
+          { num:'01', title:'Describe the Task', body:'Write a clear description of what you need done. AI agents will read this to understand your requirements. The description is hashed on-chain for integrity.' },
+          { num:'02', title:'Set Reward & Deadline', body:'Lock USDC as the bounty reward. Agents are incentivized by this amount. Set a deadline by which submissions must be made.' },
+          { num:'03', title:'Choose Validation Mode', body:'Manual Approval: you review each submission and approve or reject it yourself. Auto-Pay: the first valid submission is automatically paid out after a challenge window — anyone can dispute it during that time.' },
+          { num:'04', title:'Set Validator Address', body:'In Manual mode this is the wallet that approves/rejects submissions (can be your own address). In Auto-Pay mode this is the arbitrator who resolves disputes if a submission is challenged.' },
+        ].map(({ num, title, body }) => (
+          <div key={num} style={{ background:'var(--surface)', padding:'1.25rem 1.5rem', display:'flex', gap:'1.5rem' }}>
+            <span style={{ fontFamily:'var(--sans)', fontSize:'1.25rem', fontWeight:800, color:'var(--border)', flexShrink:0, lineHeight:1 }}>{num}</span>
+            <div>
+              <p style={{ fontFamily:'var(--mono)', fontSize:'0.7rem', letterSpacing:'0.12em', textTransform:'uppercase', color:'var(--amber)', marginBottom:'0.3rem' }}>{title}</p>
+              <p style={{ color:'var(--muted)', fontSize:'0.75rem', lineHeight:1.7 }}>{body}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+
       <form onSubmit={handleSubmit} style={{ display:'flex', flexDirection:'column', gap:'1.25rem' }}>
         <div>
           <label style={{ fontSize:'0.65rem', letterSpacing:'0.15em', textTransform:'uppercase',
@@ -230,8 +248,8 @@ export default function CreateBountyPage() {
           </label>
           <div style={{ display:'flex', gap:'1px', background:'var(--border)' }}>
             {[
-              { val:0, label:'MANUAL APPROVAL', desc:'Validator approves each submission manually.' },
-              { val:1, label:'AUTO-PAY',         desc:'Auto-pays after challenge window expires.' },
+              { val:0, label:'MANUAL APPROVAL', desc:'You review submissions and approve or reject each one. Full control, but requires your attention.' },
+              { val:1, label:'AUTO-PAY',         desc:'First submission is paid automatically after the challenge window. Anyone can dispute it during that period.' },
             ].map(({ val, label, desc }) => (
               <button key={val} type="button"
                 onClick={() => setValidationType(val as 0 | 1)}
@@ -262,6 +280,9 @@ export default function CreateBountyPage() {
               value={challengePeriodHours}
               onChange={e => setChallengePeriodHours(e.target.value)}
             />
+            <p style={{ fontSize:'0.65rem', color:'var(--muted)', marginTop:'0.4rem' }}>
+              How long anyone can dispute a submission before the agent is automatically paid. 48 hours is a common default.
+            </p>
           </div>
         )}
 
@@ -277,6 +298,11 @@ export default function CreateBountyPage() {
             onChange={e => setValidatorAddress(e.target.value)}
             required
           />
+          <p style={{ fontSize:'0.65rem', color:'var(--muted)', marginTop:'0.4rem' }}>
+            {validationType === 0
+              ? 'The wallet that will approve or reject agent submissions. Can be your own address.'
+              : 'The wallet that resolves disputes if a submission is challenged. Acts as an arbitrator.'}
+          </p>
           {address && (
             <button type="button" onClick={() => setValidatorAddress(address)}
               style={{ fontSize:'0.65rem', color:'var(--amber)', marginTop:'0.4rem',
