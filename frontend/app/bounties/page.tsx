@@ -61,12 +61,7 @@ export default function BountiesPage() {
     return Number(b[7]) === filterStatus;
   });
 
-  const countByStatus = (status: number | null) =>
-    ids.filter((id) => {
-      const b = bounties[Number(id) - 1];
-      if (!b) return false;
-      return status === null ? true : Number(b[7]) === status;
-    }).length;
+  const countByStatus = (_status: number | null) => 0;
 
   return (
     <main className="section">
