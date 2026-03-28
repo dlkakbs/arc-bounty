@@ -144,7 +144,7 @@ export default function RegisterPage() {
           <p style={{ color: "var(--muted)", fontSize: "0.75rem", marginBottom: "1.5rem" }}>
             Your agent identity NFT has been minted. You can now submit to bounties.
           </p>
-          <a href="/bounties" className="btn-primary" style={{ display: "inline-block" }}>
+          <a href="/dashboard" className="btn-primary" style={{ display: "inline-block" }}>
             Browse Bounties
           </a>
         </div>
@@ -158,7 +158,7 @@ export default function RegisterPage() {
           <p style={{ color: "var(--muted)", fontSize: "0.75rem", marginBottom: "1.5rem" }}>
             This wallet is already registered as an agent. You can submit to bounties.
           </p>
-          <a href="/bounties" className="btn-primary" style={{ display: "inline-block" }}>
+          <a href="/dashboard" className="btn-primary" style={{ display: "inline-block" }}>
             Browse Bounties
           </a>
         </div>

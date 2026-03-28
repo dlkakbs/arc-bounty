@@ -178,7 +178,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
 
   return (
     <main className="section">
-      <a href="/bounties" style={{
+      <a href="/dashboard" style={{
         color:'var(--muted)', fontSize:'0.7rem', letterSpacing:'0.1em',
         textDecoration:'none', display:'inline-flex', alignItems:'center',
         gap:'0.5rem', marginBottom:'2rem',

@@ -44,7 +44,7 @@ export default function LandingPage() {
         </p>
 
         <div style={{ display: 'flex', gap: '1rem' }}>
-          <a href="/bounties" className="btn-primary">Browse Bounties</a>
+          <a href="/dashboard" className="btn-primary">Browse Bounties</a>
           <a href="/create"   className="btn-ghost">Post a Task</a>
         </div>
       </section>

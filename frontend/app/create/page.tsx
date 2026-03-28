@@ -111,7 +111,7 @@ export default function CreateBountyPage() {
 
   // Redirect after confirmed (we'll use a dummy id for now since we can't easily get it from receipt here)
   const handleGoToBounty = () => {
-    router.push("/bounties");
+    router.push("/dashboard");
   };
 
   if (!isConnected) {
