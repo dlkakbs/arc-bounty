@@ -21,11 +21,16 @@ export default function Dashboard() {
         const logs = await publicClient.getLogs({
           address: IDENTITY_REGISTRY,
           event: parseAbiItem("event Transfer(address indexed from, address indexed to, uint256 indexed tokenId)"),
-          args: { from: "0x0000000000000000000000000000000000000000" },
-          fromBlock: BigInt(0),
+          fromBlock: "earliest",
+          toBlock: "latest",
         });
-        setRegisteredAgentCount(logs.length);
-      } catch {}
+        const mints = logs.filter(
+          (l: any) => l.args?.from === "0x0000000000000000000000000000000000000000"
+        );
+        setRegisteredAgentCount(mints.length);
+      } catch (e) {
+        console.error("getLogs failed:", e);
+      }
     };
     fetch();
     const interval = setInterval(fetch, 10_000);
