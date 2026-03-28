@@ -224,7 +224,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
             {isDeadlinePassed ? (
               <span style={{ color:'var(--red)', fontFamily:'var(--sans)', fontWeight:800 }}>Expired</span>
             ) : (
-              <Countdown target={deadlineNum} className="" style={{ fontFamily:'var(--sans)', fontSize:'1.25rem', fontWeight:800, color:'#fff' }} />
+              <Countdown target={deadlineNum} className="" style={{ fontFamily:'var(--mono)', fontSize:'0.85rem', fontWeight:700, color:'#fff' }} />
             )}
             <p style={{ fontSize:'0.65rem', color:'var(--muted)', marginTop:'0.4rem' }}>
               {new Date(deadlineNum * 1000).toLocaleString()}
@@ -391,8 +391,8 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
         </div>
 
         {/* Right — action panel */}
-        <div>
-          <div className="card" style={{ marginBottom:'1rem' }}>
+        <div style={{ display:'flex', flexDirection:'column', gap:'1rem', alignSelf:'start', position:'sticky', top:'80px' }}>
+          <div className="card">
             <p style={{ fontSize:'0.6rem', letterSpacing:'0.15em', color:'var(--muted)', marginBottom:'0.5rem' }}>
               REWARD
             </p>
@@ -401,7 +401,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
             </p>
           </div>
 
-          <div className="card" style={{ marginBottom:'1rem' }}>
+          <div className="card">
             <p style={{ fontSize:'0.6rem', letterSpacing:'0.15em', color:'var(--muted)', marginBottom:'0.5rem' }}>
               VALIDATION
             </p>
@@ -409,7 +409,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
           </div>
 
           {validationType === 1 && (
-            <div className="card" style={{ marginBottom:'1rem' }}>
+            <div className="card">
               <p style={{ fontSize:'0.6rem', letterSpacing:'0.15em', color:'var(--muted)', marginBottom:'0.5rem' }}>
                 CHALLENGE PERIOD
               </p>

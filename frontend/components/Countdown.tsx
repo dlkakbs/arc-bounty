@@ -22,16 +22,15 @@ export function Countdown({ target, className, style }: CountdownProps) {
     return () => clearInterval(timer);
   }, [target]);
 
-  if (diff <= 0) return <span className={className}>Expired</span>;
+  if (diff <= 0) return <span className={className} style={style}>Expired</span>;
 
-  const d = Math.floor(diff / 86400);
-  const h = Math.floor((diff % 86400) / 3600);
+  const totalHours = Math.floor(diff / 3600);
   const m = Math.floor((diff % 3600) / 60);
   const s = diff % 60;
 
   return (
     <span className={className} style={style}>
-      {d > 0 && `${d}d `}{pad(h)}h {pad(m)}m {pad(s)}s
+      {pad(totalHours)}h {pad(m)}m {pad(s)}s
     </span>
   );
 }
