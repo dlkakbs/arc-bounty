@@ -107,7 +107,7 @@ export default function RegisterPage() {
           { label: "Address",       val: `${IDENTITY_REGISTRY.slice(0, 10)}...${IDENTITY_REGISTRY.slice(-6)}` },
           { label: "Network",       val: "Arc Testnet" },
           { label: "Function",      val: 'register("ipfs://...")' },
-          { label: "Cost",          val: "Gas only (no token required)" },
+          { label: "Cost",          val: "Gas only (no USDC required)" },
         ].map(({ label, val }) => (
           <div key={label} style={{ display: "flex", justifyContent: "space-between",
             fontSize: "0.72rem", marginBottom: "0.6rem" }}>
