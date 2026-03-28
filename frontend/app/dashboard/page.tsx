@@ -22,7 +22,7 @@ export default function Dashboard() {
           address: IDENTITY_REGISTRY,
           event: parseAbiItem("event Transfer(address indexed from, address indexed to, uint256 indexed tokenId)"),
           args: { from: "0x0000000000000000000000000000000000000000" },
-          fromBlock: 0n,
+          fromBlock: BigInt(0),
         });
         setRegisteredAgentCount(logs.length);
       } catch {}
