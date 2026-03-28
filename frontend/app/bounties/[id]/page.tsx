@@ -213,65 +213,62 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
         )}
       </div>
 
-      {/* Two-column: TIME REMAINING + TASK HASH | REWARD + CHALLENGE */}
-      <div style={{ display:'grid', gridTemplateColumns:'1fr 320px', gap:'2rem', marginBottom:'1.5rem' }}>
-        <div>
-          <div className="card" style={{ marginBottom:'1.5rem' }}>
-            <p style={{ fontSize:'0.6rem', letterSpacing:'0.15em', color:'var(--muted)', marginBottom:'0.5rem' }}>
-              {isDeadlinePassed ? 'DEADLINE PASSED' : 'TIME REMAINING'}
-            </p>
-            {isDeadlinePassed ? (
-              <span style={{ color:'var(--red)', fontFamily:'var(--sans)', fontWeight:800 }}>Expired</span>
-            ) : (
-              <Countdown target={deadlineNum} className="" style={{ fontFamily:'var(--mono)', fontSize:'0.85rem', fontWeight:700, color:'#fff' }} />
-            )}
-            <p style={{ fontSize:'0.65rem', color:'var(--muted)', marginTop:'0.4rem' }}>
-              {new Date(deadlineNum * 1000).toLocaleString()}
-            </p>
-          </div>
+      {/* Two-column grid: each row auto-equalises height between left and right */}
+      <div style={{ display:'grid', gridTemplateColumns:'1fr 320px', gap:'1.5rem 2rem', marginBottom:'1.5rem' }}>
+        {/* Row 1 */}
+        <div className="card">
+          <p style={{ fontSize:'0.6rem', letterSpacing:'0.15em', color:'var(--muted)', marginBottom:'0.5rem' }}>
+            {isDeadlinePassed ? 'DEADLINE PASSED' : 'TIME REMAINING'}
+          </p>
+          {isDeadlinePassed ? (
+            <span style={{ color:'var(--red)', fontFamily:'var(--sans)', fontWeight:800 }}>Expired</span>
+          ) : (
+            <Countdown target={deadlineNum} className="" style={{ fontFamily:'var(--mono)', fontSize:'0.85rem', fontWeight:700, color:'#fff' }} />
+          )}
+          <p style={{ fontSize:'0.65rem', color:'var(--muted)', marginTop:'0.4rem' }}>
+            {new Date(deadlineNum * 1000).toLocaleString()}
+          </p>
+        </div>
+        <div className="card">
+          <p style={{ fontSize:'0.6rem', letterSpacing:'0.15em', color:'var(--muted)', marginBottom:'0.5rem' }}>
+            REWARD
+          </p>
+          <p style={{ fontFamily:'var(--mono)', fontSize:'0.85rem', fontWeight:700, color:'var(--amber)' }}>
+            {parseFloat(formatEther(reward)).toFixed(0)} USDC
+          </p>
+        </div>
 
+        {/* Row 2 */}
+        <div className="card">
+          <p className="section-label" style={{ marginBottom:'1rem' }}>// Task Hash</p>
+          <code style={{ fontSize:'0.72rem', color:'var(--green)', wordBreak:'break-all' }}>
+            {taskHash}
+          </code>
+        </div>
+        {validationType === 1 ? (
           <div className="card">
-            <p className="section-label" style={{ marginBottom:'1rem' }}>// Task Hash</p>
-            <code style={{ fontSize:'0.72rem', color:'var(--green)', wordBreak:'break-all' }}>
-              {taskHash}
-            </code>
-          </div>
-        </div>
-
-        <div style={{ display:'flex', flexDirection:'column', gap:'0.75rem', height:'100%' }}>
-          <div className="card" style={{ flex:1 }}>
             <p style={{ fontSize:'0.6rem', letterSpacing:'0.15em', color:'var(--muted)', marginBottom:'0.5rem' }}>
-              REWARD
+              CHALLENGE PERIOD
             </p>
-            <p style={{ fontFamily:'var(--mono)', fontSize:'0.85rem', fontWeight:700, color:'var(--amber)' }}>
-              {parseFloat(formatEther(reward)).toFixed(0)} USDC
+            <p style={{ fontSize:'0.8rem', color:'var(--text)' }}>
+              {Math.floor(challengePeriodNum / 3600)}h
             </p>
           </div>
+        ) : <div />}
 
-          {validationType === 1 && (
-            <div className="card" style={{ flex:1 }}>
-              <p style={{ fontSize:'0.6rem', letterSpacing:'0.15em', color:'var(--muted)', marginBottom:'0.5rem' }}>
-                CHALLENGE PERIOD
-              </p>
-              <p style={{ fontSize:'0.8rem', color:'var(--text)' }}>
-                {Math.floor(challengePeriodNum / 3600)}h
-              </p>
-            </div>
-          )}
-
-          {status === 1 && winner && winner !== '0x0000000000000000000000000000000000000000' && (
-            <div className="card">
-              <p style={{ fontSize:'0.6rem', letterSpacing:'0.15em', color:'var(--muted)', marginBottom:'0.5rem' }}>
-                WINNER
-              </p>
-              <a href={`/profile/${winner}`} style={{
-                fontFamily:'var(--mono)', fontSize:'0.8rem', color:'var(--amber)', textDecoration:'none',
-              }}>
-                {winner.slice(0,6)}...{winner.slice(-4)}
-              </a>
-            </div>
-          )}
-        </div>
+        {/* Winner row (full width) */}
+        {status === 1 && winner && winner !== '0x0000000000000000000000000000000000000000' && (
+          <div className="card" style={{ gridColumn:'1 / -1' }}>
+            <p style={{ fontSize:'0.6rem', letterSpacing:'0.15em', color:'var(--muted)', marginBottom:'0.5rem' }}>
+              WINNER
+            </p>
+            <a href={`/profile/${winner}`} style={{
+              fontFamily:'var(--mono)', fontSize:'0.8rem', color:'var(--amber)', textDecoration:'none',
+            }}>
+              {winner.slice(0,6)}...{winner.slice(-4)}
+            </a>
+          </div>
+        )}
       </div>
 
       {/* Optimistic info */}
