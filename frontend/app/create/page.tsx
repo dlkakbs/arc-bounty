@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useWriteContract, useWaitForTransactionReceipt, useAccount } from "wagmi";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { BOUNTY_REGISTRY_ADDRESS, BOUNTY_REGISTRY_ABI } from "@/lib/contract";
@@ -29,16 +29,18 @@ export default function CreateBountyPage() {
   });
 
   // After confirmation, parse bountyId from receipt and store title+description to localStorage
-  if (isConfirmed && receipt && !newBountyId) {
+  useEffect(() => {
+    if (!isConfirmed || !receipt || newBountyId) return;
     try {
-      const log = receipt.logs[0];
-      const bountyId = log?.topics?.[1] ? String(parseInt(log.topics[1], 16)) : null;
-      if (bountyId) {
+      // Find BountyCreated event log (topics[0] matches event sig, topics[1] = bountyId)
+      const log = receipt.logs.find(l => l.topics.length >= 2);
+      if (log?.topics?.[1]) {
+        const bountyId = String(BigInt(log.topics[1]));
         localStorage.setItem(`bounty_${bountyId}`, JSON.stringify({ title, description: taskDescription }));
         setNewBountyId(bountyId);
       }
     } catch {}
-  }
+  }, [isConfirmed, receipt]);
 
   const taskHash = taskDescription ? keccak256(toHex(taskDescription)) : null;
 
