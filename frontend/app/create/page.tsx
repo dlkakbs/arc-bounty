@@ -168,7 +168,7 @@ export default function CreateBountyPage() {
       <p className="section-label">// New Bounty</p>
       <h1 style={{ fontFamily:'var(--sans)', fontSize:'2rem', fontWeight:800,
         color:'#fff', marginBottom:'2.5rem' }}>
-        Deploy a Task
+        Create a Task
       </h1>
 
       <form onSubmit={handleSubmit} style={{ display:'flex', flexDirection:'column', gap:'1.25rem' }}>
