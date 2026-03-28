@@ -3,10 +3,7 @@
 import { useState } from "react";
 import { useReadContract, useReadContracts } from "wagmi";
 import { BOUNTY_REGISTRY_ADDRESS, BOUNTY_REGISTRY_ABI } from "@/lib/contract";
-import { BountyCard } from "@/components/BountyCard";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Zap } from "lucide-react";
-import Link from "next/link";
+import { formatEther } from "viem";
 
 const FILTER_TABS = [
   { value: "all", label: "All" },
@@ -72,75 +69,88 @@ export default function BountiesPage() {
     }).length;
 
   return (
-    <div className="space-y-8">
-      <div className="flex items-center justify-between">
+    <main className="section">
+      <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-end', marginBottom:'2.5rem' }}>
         <div>
-          <h1 className="text-3xl font-bold text-white">All Bounties</h1>
-          <p className="text-white/50 mt-1">Browse and claim on-chain tasks</p>
+          <p className="section-label" style={{ marginBottom: '0.5rem' }}>// Bounties</p>
+          <h1 style={{ fontFamily:'var(--sans)', fontSize:'2rem', fontWeight:800, color:'#fff' }}>
+            All Bounties
+          </h1>
         </div>
-        <Link
-          href="/create"
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-indigo-500 hover:bg-indigo-600 text-white text-sm font-medium transition-colors"
-        >
-          <Zap className="w-4 h-4" />
-          Post Bounty
-        </Link>
+        <a href="/create" className="btn-primary">Post Bounty</a>
       </div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="bg-white/5 border border-white/10">
-          {FILTER_TABS.map((tab) => (
-            <TabsTrigger key={tab.value} value={tab.value} className="text-white/60 data-active:text-white data-active:bg-white/10">
-              {tab.label}
-              <span className="ml-1.5 text-xs text-white/30">
-                ({countByStatus(statusFilter[tab.value])})
-              </span>
-            </TabsTrigger>
-          ))}
-        </TabsList>
-
-        {FILTER_TABS.map((tab) => (
-          <TabsContent key={tab.value} value={tab.value} className="mt-6">
-            {bountiesLoading ? (
-              <div className="space-y-3">
-                {[...Array(3)].map((_, i) => (
-                  <div key={i} className="h-24 bg-white/5 border border-white/10 rounded-xl animate-pulse" />
-                ))}
-              </div>
-            ) : filteredIds.length === 0 ? (
-              <div className="text-center py-20 text-white/30">
-                <div className="text-4xl mb-3">📭</div>
-                <p>No {tab.value === "all" ? "" : tab.label.toLowerCase()} bounties yet.</p>
-                {tab.value === "open" && (
-                  <Link href="/create" className="text-indigo-400 hover:underline text-sm mt-2 inline-block">
-                    Create the first one
-                  </Link>
-                )}
-              </div>
-            ) : (
-              <div className="grid gap-3">
-                {[...filteredIds].reverse().map((id) => {
-                  const idx = Number(id) - 1;
-                  const b = bounties[idx];
-                  if (!b) return null;
-                  return (
-                    <BountyCard
-                      key={id.toString()}
-                      id={id}
-                      creator={b[0]}
-                      reward={BigInt(b[2])}
-                      deadline={BigInt(b[3])}
-                      validationType={Number(b[5])}
-                      status={Number(b[7])}
-                      submissionCount={submissions[idx]?.length ?? 0}
-                    />
-                  );
-                })}
-              </div>
-            )}
-          </TabsContent>
+      {/* Filter tabs */}
+      <div style={{ display:'flex', gap:'0', marginBottom:'2rem', borderBottom:'1px solid var(--border)' }}>
+        {FILTER_TABS.map(tab => (
+          <button key={tab.value}
+            onClick={() => setActiveTab(tab.value)}
+            style={{
+              fontFamily:'var(--mono)', fontSize:'0.7rem', letterSpacing:'0.1em',
+              textTransform:'uppercase', padding:'0.6rem 1.25rem',
+              background: activeTab === tab.value ? 'var(--amber)' : 'transparent',
+              color:       activeTab === tab.value ? 'var(--bg)'   : 'var(--muted)',
+              border:'none', borderBottom: activeTab === tab.value
+                ? '2px solid var(--amber)' : '2px solid transparent',
+              cursor:'crosshair', transition:'all 0.2s',
+            }}
+          >{tab.label} ({countByStatus(statusFilter[tab.value])})</button>
         ))}
-      </Tabs>
-    </div>
+      </div>
+
+      {/* Bounty rows */}
+      {bountiesLoading ? (
+        <div style={{ textAlign:'center', padding:'6rem 2rem', color:'var(--muted)', fontSize:'0.8rem' }}>
+          Loading...
+        </div>
+      ) : filteredIds.length === 0 ? (
+        <div style={{
+          textAlign:'center', padding:'6rem 2rem',
+          color:'var(--muted)', fontSize:'0.8rem', letterSpacing:'0.1em',
+        }}>
+          <div style={{ fontSize:'2rem', marginBottom:'1rem' }}>📭</div>
+          NO BOUNTIES YET
+        </div>
+      ) : (
+        <div style={{ display:'flex', flexDirection:'column', gap:'1px', background:'var(--border)' }}>
+          {[...filteredIds].reverse().map(id => {
+            const idx = Number(id) - 1;
+            const b = bounties[idx];
+            if (!b) return null;
+            const bStatus = Number(b[7]);
+            const statusLabel = bStatus === 0 ? 'open' : bStatus === 1 ? 'completed' : 'cancelled';
+            return (
+              <a key={id.toString()} href={`/bounties/${id}`} style={{ textDecoration:'none' }}>
+                <div className="card" style={{
+                  display:'grid',
+                  gridTemplateColumns:'auto 1fr auto auto',
+                  gap:'1.5rem', alignItems:'center',
+                }}>
+                  <span style={{ fontFamily:'var(--sans)', fontSize:'1.1rem',
+                    fontWeight:800, color:'var(--border)' }}>
+                    #{String(Number(id)).padStart(3,'0')}
+                  </span>
+                  <div>
+                    <p style={{ color:'#fff', fontSize:'0.85rem', marginBottom:'0.25rem' }}>
+                      Bounty #{id.toString()}
+                    </p>
+                    <p style={{ color:'var(--muted)', fontSize:'0.65rem', letterSpacing:'0.08em' }}>
+                      {b[0]?.slice(0,6)}...{b[0]?.slice(-4)}
+                    </p>
+                  </div>
+                  <span style={{ fontFamily:'var(--sans)', fontWeight:800,
+                    color:'var(--amber)', fontSize:'1rem' }}>
+                    ${parseFloat(formatEther(BigInt(b[2] ?? 0))).toFixed(0)} USDC
+                  </span>
+                  <span className={`badge badge-${bStatus === 0 ? 'green' : bStatus === 2 ? 'red' : 'muted'}`}>
+                    {statusLabel}
+                  </span>
+                </div>
+              </a>
+            );
+          })}
+        </div>
+      )}
+    </main>
   );
 }

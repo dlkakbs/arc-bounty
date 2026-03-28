@@ -7,22 +7,7 @@ const IDENTITY_REGISTRY_ABI = [
   { name: "balanceOf", type: "function", stateMutability: "view", inputs: [{ name: "owner", type: "address" }], outputs: [{ type: "uint256" }] },
 ] as const;
 const IDENTITY_REGISTRY = "0x8004A818BFB912233c491871b3d84c89A494BD9e" as const;
-import { BountyCard } from "@/components/BountyCard";
-import { Zap, DollarSign, Users, Trophy } from "lucide-react";
 import { formatEther } from "viem";
-import Link from "next/link";
-
-function StatCard({ label, value, icon: Icon, color }: { label: string; value: string; icon: React.ElementType; color: string }) {
-  return (
-    <div className="bg-white/5 border border-white/10 rounded-xl p-5">
-      <div className={`w-9 h-9 rounded-lg ${color} flex items-center justify-center mb-3`}>
-        <Icon className="w-4 h-4 text-white" />
-      </div>
-      <div className="text-2xl font-bold text-white">{value}</div>
-      <div className="text-sm text-white/50 mt-0.5">{label}</div>
-    </div>
-  );
-}
 
 export default function Dashboard() {
   const { data: bountyCount } = useReadContract({
@@ -74,50 +59,87 @@ export default function Dashboard() {
   const recentIds = [...ids].reverse().slice(0, 6);
 
   return (
-    <div className="space-y-10">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-white">Dashboard</h1>
+    <main className="section">
+      <p className="section-label">// Overview</p>
+      <h1 style={{ fontFamily:'var(--sans)', fontSize:'2rem', fontWeight:800,
+        color:'#fff', marginBottom:'2.5rem' }}>
+        Dashboard
+      </h1>
+
+      {/* Quick stats */}
+      <div style={{
+        display:'grid', gridTemplateColumns:'repeat(4,1fr)',
+        gap:1, background:'var(--border)', marginBottom:'2rem',
+      }}>
+        {[
+          { val: count.toString(),                                                   label:'Total Bounties', color:'var(--amber)' },
+          { val: openBounties.length.toString(),                                     label:'Open Bounties',  color:'var(--green)' },
+          { val: `$${parseFloat(formatEther(totalLocked)).toFixed(0)}`,              label:'USDC Locked',    color:'var(--amber)' },
+          { val: totalAgents.toString(),                                              label:'Active Agents',  color:'var(--text)'  },
+        ].map(({ val, label, color }) => (
+          <div key={label} style={{
+            background:'var(--surface)', padding:'1.5rem', textAlign:'center',
+          }}>
+            <span style={{ fontFamily:'var(--sans)', fontSize:'1.75rem', fontWeight:800,
+              color, display:'block', marginBottom:'0.3rem' }}>{val}</span>
+            <span style={{ fontSize:'0.6rem', letterSpacing:'0.14em',
+              textTransform:'uppercase', color:'var(--muted)' }}>{label}</span>
+          </div>
+        ))}
       </div>
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard label="Total Bounties" value={count.toString()} icon={Zap} color="bg-indigo-500" />
-        <StatCard label="Open Bounties" value={openBounties.length.toString()} icon={DollarSign} color="bg-emerald-500" />
-        <StatCard label="USDC Locked" value={`$${parseFloat(formatEther(totalLocked)).toFixed(0)}`} icon={Trophy} color="bg-amber-500" />
-        <StatCard label="Active Agents" value={totalAgents.toString()} icon={Users} color="bg-violet-500" />
-      </div>
-
-      <div>
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-white">Recent Bounties</h2>
-          <Link href="/bounties" className="text-sm text-indigo-400 hover:text-indigo-300">View all →</Link>
+      {/* Recent bounties */}
+      <p className="section-label">// Recent Bounties</p>
+      {count === 0 ? (
+        <p style={{ color:'var(--muted)', fontSize:'0.75rem' }}>
+          No bounties yet.{' '}
+          <a href="/create" style={{ color:'var(--amber)' }}>Create the first one.</a>
+        </p>
+      ) : (
+        <div style={{ display:'flex', flexDirection:'column', gap:1, background:'var(--border)' }}>
+          {recentIds.map((id) => {
+            const idx = Number(id) - 1;
+            const b = bounties[idx];
+            if (!b) return null;
+            const bStatus = Number(b[7]);
+            const statusLabel = bStatus === 0 ? 'open' : bStatus === 1 ? 'completed' : 'cancelled';
+            return (
+              <a key={id.toString()} href={`/bounties/${id}`} style={{ textDecoration:'none' }}>
+                <div className="card" style={{
+                  display:'grid', gridTemplateColumns:'auto 1fr auto auto',
+                  gap:'1.5rem', alignItems:'center',
+                }}>
+                  <span style={{ fontFamily:'var(--sans)', fontSize:'1.1rem',
+                    fontWeight:800, color:'var(--border)' }}>
+                    #{String(Number(id)).padStart(3,'0')}
+                  </span>
+                  <div>
+                    <p style={{ color:'#fff', fontSize:'0.85rem', marginBottom:'0.25rem' }}>
+                      Bounty #{id.toString()}
+                    </p>
+                    <p style={{ color:'var(--muted)', fontSize:'0.65rem' }}>
+                      {b[0]?.slice(0,6)}...{b[0]?.slice(-4)}
+                    </p>
+                  </div>
+                  <span style={{ fontFamily:'var(--sans)', fontWeight:800,
+                    color:'var(--amber)', fontSize:'1rem' }}>
+                    ${parseFloat(formatEther(BigInt(b[2] ?? 0))).toFixed(0)} USDC
+                  </span>
+                  <span className={`badge badge-${bStatus === 0 ? 'green' : bStatus === 2 ? 'red' : 'muted'}`}>
+                    {statusLabel}
+                  </span>
+                </div>
+              </a>
+            );
+          })}
         </div>
-        {count === 0 ? (
-          <div className="text-center py-16 text-white/30">
-            No bounties yet. <Link href="/create" className="text-indigo-400 hover:underline">Create the first one.</Link>
-          </div>
-        ) : (
-          <div className="grid gap-3">
-            {recentIds.map((id) => {
-              const idx = Number(id) - 1;
-              const b = bounties[idx];
-              if (!b) return null;
-              return (
-                <BountyCard
-                  key={id.toString()}
-                  id={id}
-                  creator={b[0]}
-                  reward={BigInt(b[2])}
-                  deadline={BigInt(b[3])}
-                  validationType={Number(b[5])}
-                  status={Number(b[7])}
-                  submissionCount={submissions[idx]?.length ?? 0}
-                  creatorIsAgent={creatorIsAgentMap[b[0]?.toLowerCase()] ?? false}
-                />
-              );
-            })}
-          </div>
-        )}
+      )}
+
+      {/* Quick links */}
+      <div style={{ display:'flex', gap:'1rem', marginTop:'2rem' }}>
+        <a href="/bounties" className="btn-primary">Browse Bounties</a>
+        <a href="/create"   className="btn-ghost">Post a Task</a>
       </div>
-    </div>
+    </main>
   );
 }
