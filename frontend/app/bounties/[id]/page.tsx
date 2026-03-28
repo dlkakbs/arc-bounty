@@ -238,8 +238,8 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
           </div>
         </div>
 
-        <div style={{ display:'flex', flexDirection:'column', gap:'0.75rem' }}>
-          <div className="card">
+        <div style={{ display:'flex', flexDirection:'column', gap:'0.75rem', height:'100%' }}>
+          <div className="card" style={{ flex:1 }}>
             <p style={{ fontSize:'0.6rem', letterSpacing:'0.15em', color:'var(--muted)', marginBottom:'0.5rem' }}>
               REWARD
             </p>
@@ -249,7 +249,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
           </div>
 
           {validationType === 1 && (
-            <div className="card">
+            <div className="card" style={{ flex:1 }}>
               <p style={{ fontSize:'0.6rem', letterSpacing:'0.15em', color:'var(--muted)', marginBottom:'0.5rem' }}>
                 CHALLENGE PERIOD
               </p>
