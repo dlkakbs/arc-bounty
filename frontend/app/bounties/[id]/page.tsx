@@ -190,8 +190,8 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
           <h1 style={{ fontFamily:'var(--sans)', fontSize:'1.75rem', fontWeight:800, color:'#fff' }}>
             {storedTask.title || `Bounty #${id}`}
           </h1>
-          <span className={`badge badge-${status === 0 ? 'green' : status === 2 ? 'red' : 'muted'}`}>
-            {statusInfo.label}
+          <span className={`badge badge-${status === 0 && isDeadlinePassed ? 'red' : status === 0 ? 'green' : status === 2 ? 'red' : 'muted'}`}>
+            {status === 0 && isDeadlinePassed ? 'Expired' : statusInfo.label}
           </span>
           <span className="badge badge-amber">{typeInfo.label}</span>
         </div>
