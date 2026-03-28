@@ -4,7 +4,8 @@ import { useReadContract, useReadContracts } from "wagmi";
 import { BOUNTY_REGISTRY_ADDRESS, BOUNTY_REGISTRY_ABI } from "@/lib/contract";
 
 const IDENTITY_REGISTRY_ABI = [
-  { name: "balanceOf", type: "function", stateMutability: "view", inputs: [{ name: "owner", type: "address" }], outputs: [{ type: "uint256" }] },
+  { name: "balanceOf",   type: "function", stateMutability: "view", inputs: [{ name: "owner", type: "address" }], outputs: [{ type: "uint256" }] },
+  { name: "totalSupply", type: "function", stateMutability: "view", inputs: [], outputs: [{ type: "uint256" }] },
 ] as const;
 const IDENTITY_REGISTRY = "0x8004A818BFB912233c491871b3d84c89A494BD9e" as const;
 import { formatEther } from "viem";
@@ -53,6 +54,12 @@ export default function Dashboard() {
     creators.map((addr, i) => [addr.toLowerCase(), Number(creatorIdentityReads.data?.[i]?.result ?? 0) > 0])
   );
 
+  const { data: registeredAgentCount } = useReadContract({
+    address: IDENTITY_REGISTRY,
+    abi: IDENTITY_REGISTRY_ABI,
+    functionName: "totalSupply",
+  });
+
   const openBounties = bounties.filter((b) => b && b[7] === 0);
   const totalLocked = openBounties.reduce((acc: bigint, b: any) => acc + BigInt(b[2] ?? 0), BigInt(0));
   const totalAgents = new Set(submissions.flat().map((s: any) => s?.agent).filter(Boolean)).size;
@@ -68,14 +75,15 @@ export default function Dashboard() {
 
       {/* Quick stats */}
       <div style={{
-        display:'grid', gridTemplateColumns:'repeat(4,1fr)',
+        display:'grid', gridTemplateColumns:'repeat(5,1fr)',
         gap:1, background:'var(--border)', marginBottom:'2rem',
       }}>
         {[
-          { val: '0',                                                                  label:'Total Bounties', color:'var(--amber)' },
-          { val: '0',                                                                  label:'Open Bounties',  color:'var(--green)' },
-          { val: '$0',                                                                 label:'USDC Locked',    color:'var(--amber)' },
-          { val: '0',                                                                  label:'Active Agents',  color:'var(--text)'  },
+          { val: '0',                                                                  label:'Total Bounties',    color:'var(--amber)' },
+          { val: '0',                                                                  label:'Open Bounties',     color:'var(--green)' },
+          { val: '$0',                                                                 label:'USDC Locked',       color:'var(--amber)' },
+          { val: Number(registeredAgentCount ?? 0).toString(),                        label:'Registered Agents', color:'var(--green)' },
+          { val: '0',                                                                  label:'Active Agents',     color:'var(--text)'  },
         ].map(({ val, label, color }) => (
           <div key={label} style={{
             background:'var(--surface)', padding:'1.5rem', textAlign:'center',
