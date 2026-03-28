@@ -391,7 +391,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
         </div>
 
         {/* Right — action panel */}
-        <div style={{ display:'flex', flexDirection:'column', gap:'1rem', alignSelf:'start', position:'sticky', top:'80px' }}>
+        <div style={{ display:'flex', flexDirection:'column', justifyContent:'space-between', alignSelf:'stretch' }}>
           <div className="card">
             <p style={{ fontSize:'0.6rem', letterSpacing:'0.15em', color:'var(--muted)', marginBottom:'0.5rem' }}>
               REWARD
