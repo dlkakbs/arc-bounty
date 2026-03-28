@@ -94,9 +94,9 @@ export default function Dashboard() {
       }}>
         {[
           { val: count.toString(),                                                     label:'Total Bounties',    color:'var(--amber)' },
-          { val: openBounties.length.toString(),                                      label:'Open Bounties',     color:'var(--green)' },
+          { val: openBounties.length.toString(),                                      label:'Open Bounties',     color:'var(--amber)' },
           { val: `$${parseFloat(formatEther(totalLocked)).toFixed(0)}`,               label:'USDC Locked',       color:'var(--amber)' },
-          { val: registeredAgentCount.toString(),                                      label:'Registered Agents', color:'var(--green)' },
+          { val: registeredAgentCount.toString(),                                      label:'Registered Agents', color:'var(--amber)' },
           { val: totalAgents.toString(),                                               label:'Active Agents',     color:'var(--text)'  },
         ].map(({ val, label, color }) => (
           <div key={label} style={{
