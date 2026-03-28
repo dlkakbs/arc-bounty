@@ -8,6 +8,7 @@ const links = [
   { href: '/dashboard',   label: 'Dashboard'   },
   { href: '/bounties',    label: 'Bounties'    },
   { href: '/leaderboard', label: 'Leaderboard' },
+  { href: '/register',    label: 'Register'    },
   { href: '/create',      label: 'Post Task'   },
 ];
 
