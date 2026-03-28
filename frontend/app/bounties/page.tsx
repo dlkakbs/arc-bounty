@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useReadContract, useReadContracts } from "wagmi";
 import { BOUNTY_REGISTRY_ADDRESS, BOUNTY_REGISTRY_ABI } from "@/lib/contract";
 import { formatEther } from "viem";
@@ -14,6 +14,7 @@ const FILTER_TABS = [
 
 export default function BountiesPage() {
   const [activeTab, setActiveTab] = useState("all");
+  const [storedTitles, setStoredTitles] = useState<Record<string, string>>({});
 
   const { data: bountyCount } = useReadContract({
     address: BOUNTY_REGISTRY_ADDRESS,
@@ -47,6 +48,17 @@ export default function BountiesPage() {
 
   const bounties = (bountyData ?? []).map((d) => d.result as any);
   const submissions = (submissionData ?? []).map((d) => (d.result as any[]) ?? []);
+
+  useEffect(() => {
+    const titles: Record<string, string> = {};
+    for (const id of ids) {
+      try {
+        const stored = JSON.parse(localStorage.getItem(`bounty_${id}`) ?? '{}');
+        if (stored.title) titles[id.toString()] = stored.title;
+      } catch {}
+    }
+    setStoredTitles(titles);
+  }, [count]);
 
   const statusFilter: Record<string, number | null> = {
     all: null,
@@ -121,6 +133,7 @@ export default function BountiesPage() {
             if (!b) return null;
             const bStatus = Number(b[7]);
             const statusLabel = bStatus === 0 ? 'open' : bStatus === 1 ? 'completed' : 'cancelled';
+            const storedTitle = storedTitles[id.toString()] ?? '';
             return (
               <a key={id.toString()} href={`/bounties/${id}`} style={{ textDecoration:'none' }}>
                 <div className="card" style={{
@@ -134,7 +147,7 @@ export default function BountiesPage() {
                   </span>
                   <div>
                     <p style={{ color:'#fff', fontSize:'0.85rem', marginBottom:'0.25rem' }}>
-                      Bounty #{id.toString()}
+                      {storedTitle || `Bounty #${id.toString()}`}
                     </p>
                     <p style={{ color:'var(--muted)', fontSize:'0.65rem', letterSpacing:'0.08em' }}>
                       {b[0]?.slice(0,6)}...{b[0]?.slice(-4)}

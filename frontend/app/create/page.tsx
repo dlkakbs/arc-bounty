@@ -28,18 +28,20 @@ export default function CreateBountyPage() {
     hash: txHash,
   });
 
-  // After confirmation, parse bountyId from receipt and store title+description to localStorage
+  // After confirmation, parse bountyId from BountyCreated event and store title+description to localStorage
   useEffect(() => {
     if (!isConfirmed || !receipt || newBountyId) return;
-    try {
-      // Find BountyCreated event log (topics[0] matches event sig, topics[1] = bountyId)
-      const log = receipt.logs.find(l => l.topics.length >= 2);
-      if (log?.topics?.[1]) {
-        const bountyId = String(BigInt(log.topics[1]));
-        localStorage.setItem(`bounty_${bountyId}`, JSON.stringify({ title, description: taskDescription }));
-        setNewBountyId(bountyId);
-      }
-    } catch {}
+    // BountyCreated: topics[0]=sig, topics[1]=bountyId(indexed), topics[2]=creator(indexed) → 3 topics
+    const log = receipt.logs.find(
+      (l) =>
+        l.address.toLowerCase() === BOUNTY_REGISTRY_ADDRESS.toLowerCase() &&
+        l.topics.length === 3
+    );
+    if (log?.topics?.[1]) {
+      const bountyId = String(BigInt(log.topics[1]));
+      localStorage.setItem(`bounty_${bountyId}`, JSON.stringify({ title, description: taskDescription }));
+      setNewBountyId(bountyId);
+    }
   }, [isConfirmed, receipt]);
 
   const taskHash = taskDescription ? keccak256(toHex(taskDescription)) : null;

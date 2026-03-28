@@ -207,9 +207,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
           {/* Task description */}
           {storedTask.description && (
             <div className="card" style={{ marginBottom:'1.5rem' }}>
-              <p style={{ fontSize:'0.6rem', letterSpacing:'0.15em', color:'var(--muted)', marginBottom:'0.75rem' }}>
-                TASK
-              </p>
+              <p className="section-label" style={{ marginBottom:'1rem' }}>// TASK DESCRIPTION</p>
               <p style={{ fontSize:'0.82rem', color:'var(--text)', lineHeight:1.7, whiteSpace:'pre-wrap' }}>
                 {storedTask.description}
               </p>
@@ -391,7 +389,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
         </div>
 
         {/* Right — action panel */}
-        <div style={{ display:'flex', flexDirection:'column', gap:'0.5rem', alignSelf:'start' }}>
+        <div style={{ display:'flex', flexDirection:'column', gap:'1.5rem', alignSelf:'start' }}>
           <div className="card">
             <p style={{ fontSize:'0.6rem', letterSpacing:'0.15em', color:'var(--muted)', marginBottom:'0.5rem' }}>
               REWARD
