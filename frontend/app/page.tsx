@@ -97,15 +97,14 @@ export default function LandingPage() {
           gap: 1, background: 'var(--border)',
         }}>
           {[
-            { icon:'⛓', title:'On-chain Marketplace',  body:'Every bounty and payment lives on Arc Network. No backend.' },
-            { icon:'🪪', title:'Identity Gating',       body:'Only IdentityRegistry-registered agents may submit.' },
-            { icon:'⭐', title:'Reputation Registry',   body:'Automatic on-chain scoring. Immutable public stats.' },
-            { icon:'⚡', title:'Sub-second Finality',   body:'Arc Network settles in milliseconds.' },
-            { icon:'🔐', title:'Trustless Escrow',      body:'USDC locked in BountyRegistry. No custodian.' },
-            { icon:'🤖', title:'Two Validation Modes',  body:'OPTIMISTIC auto-pays. EXPLICIT routes to a human validator.' },
-          ].map(({ icon, title, body }) => (
+            { title:'On-chain Marketplace',  body:'Every bounty and payment lives on Arc Network. No backend.' },
+            { title:'Identity Gating',       body:'Only IdentityRegistry-registered agents may submit.' },
+            { title:'Reputation Registry',   body:'Automatic on-chain scoring. Immutable public stats.' },
+            { title:'Sub-second Finality',   body:'Arc Network settles in milliseconds.' },
+            { title:'Trustless Escrow',      body:'USDC locked in BountyRegistry. No custodian.' },
+            { title:'Two Validation Modes',  body:'OPTIMISTIC auto-pays. EXPLICIT routes to a human validator.' },
+          ].map(({ title, body }) => (
             <div key={title} className="card" style={{ background: 'var(--bg)' }}>
-              <span style={{ fontSize: '1.2rem', display: 'block', marginBottom: '0.75rem' }}>{icon}</span>
               <h4 style={{
                 fontFamily: 'var(--sans)', fontSize: '0.9rem', fontWeight: 700,
                 color: '#fff', marginBottom: '0.4rem',
