@@ -18,11 +18,13 @@ export default function Dashboard() {
     if (!publicClient) return;
     const fetch = async () => {
       try {
+        const latest = await publicClient.getBlockNumber();
+        const fromBlock = latest > BigInt(9999) ? latest - BigInt(9999) : BigInt(0);
         const logs = await publicClient.getLogs({
           address: IDENTITY_REGISTRY,
           event: parseAbiItem("event Transfer(address indexed from, address indexed to, uint256 indexed tokenId)"),
-          fromBlock: "earliest",
-          toBlock: "latest",
+          fromBlock,
+          toBlock: latest,
         });
         const mints = logs.filter(
           (l: any) => l.args?.from === "0x0000000000000000000000000000000000000000"
