@@ -136,6 +136,9 @@ export default function Dashboard() {
             if (!b) return null;
             const bStatus = Number(b[7]);
             const statusLabel = bStatus === 0 ? 'open' : bStatus === 1 ? 'completed' : 'cancelled';
+            let stored: { title?: string } = {};
+            try { stored = JSON.parse(localStorage.getItem(`bounty_${Number(id)}`) ?? '{}'); } catch {}
+            const displayTitle = stored.title || `Bounty #${Number(id)}`;
             return (
               <a key={id.toString()} href={`/bounties/${id}`} style={{ textDecoration:'none' }}>
                 <div className="card" style={{
@@ -148,14 +151,14 @@ export default function Dashboard() {
                   </span>
                   <div>
                     <p style={{ color:'#fff', fontSize:'0.85rem', marginBottom:'0.25rem' }}>
-                      Bounty #{id.toString()}
+                      {displayTitle}
                     </p>
                     <p style={{ color:'var(--muted)', fontSize:'0.65rem' }}>
                       {b[0]?.slice(0,6)}...{b[0]?.slice(-4)}
                     </p>
                   </div>
-                  <span style={{ fontFamily:'var(--sans)', fontWeight:800,
-                    color:'var(--amber)', fontSize:'1rem' }}>
+                  <span style={{ fontFamily:'var(--mono)', fontWeight:700,
+                    color:'var(--amber)', fontSize:'0.78rem' }}>
                     ${parseFloat(formatEther(BigInt(b[2] ?? 0))).toFixed(0)} USDC
                   </span>
                   <span className={`badge badge-${bStatus === 0 ? 'green' : bStatus === 2 ? 'red' : 'muted'}`}>

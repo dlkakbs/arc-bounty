@@ -26,6 +26,9 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
   const [resultText, setResultText] = useState("");
   const [showSubmitForm, setShowSubmitForm] = useState(false);
 
+  let storedTask: { title?: string; description?: string } = {};
+  try { storedTask = JSON.parse(localStorage.getItem(`bounty_${id}`) ?? '{}'); } catch {}
+
   const { data: bountyRaw, refetch: refetchBounty } = useReadContract({
     address: BOUNTY_REGISTRY_ADDRESS,
     abi: BOUNTY_REGISTRY_ABI,
@@ -186,7 +189,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
         <div>
           <div style={{ display:'flex', alignItems:'center', gap:'1rem', marginBottom:'1rem', flexWrap:'wrap' }}>
             <h1 style={{ fontFamily:'var(--sans)', fontSize:'1.75rem', fontWeight:800, color:'#fff' }}>
-              Bounty #{String(id).padStart(3,'0')}
+              {storedTask.title || `Bounty #${id}`}
             </h1>
             <span className={`badge badge-${status === 0 ? 'green' : status === 2 ? 'red' : 'muted'}`}>
               {statusInfo.label}
@@ -201,6 +204,18 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
             </a>
           </p>
 
+          {/* Task description */}
+          {storedTask.description && (
+            <div className="card" style={{ marginBottom:'1.5rem' }}>
+              <p style={{ fontSize:'0.6rem', letterSpacing:'0.15em', color:'var(--muted)', marginBottom:'0.75rem' }}>
+                TASK
+              </p>
+              <p style={{ fontSize:'0.82rem', color:'var(--text)', lineHeight:1.7, whiteSpace:'pre-wrap' }}>
+                {storedTask.description}
+              </p>
+            </div>
+          )}
+
           {/* Deadline */}
           <div className="card" style={{ marginBottom:'1.5rem' }}>
             <p style={{ fontSize:'0.6rem', letterSpacing:'0.15em', color:'var(--muted)', marginBottom:'0.5rem' }}>
@@ -209,7 +224,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
             {isDeadlinePassed ? (
               <span style={{ color:'var(--red)', fontFamily:'var(--sans)', fontWeight:800 }}>Expired</span>
             ) : (
-              <Countdown target={deadlineNum} className="" />
+              <Countdown target={deadlineNum} className="" style={{ fontFamily:'var(--sans)', fontSize:'1.25rem', fontWeight:800, color:'#fff' }} />
             )}
             <p style={{ fontSize:'0.65rem', color:'var(--muted)', marginTop:'0.4rem' }}>
               {new Date(deadlineNum * 1000).toLocaleString()}
@@ -381,9 +396,8 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
             <p style={{ fontSize:'0.6rem', letterSpacing:'0.15em', color:'var(--muted)', marginBottom:'0.5rem' }}>
               REWARD
             </p>
-            <p style={{ fontFamily:'var(--sans)', fontSize:'2rem', fontWeight:800, color:'var(--amber)' }}>
-              {parseFloat(formatEther(reward)).toFixed(0)}{' '}
-              <span style={{ fontSize:'0.8rem' }}>USDC</span>
+            <p style={{ fontFamily:'var(--mono)', fontSize:'0.85rem', fontWeight:700, color:'var(--amber)' }}>
+              {parseFloat(formatEther(reward)).toFixed(0)} USDC
             </p>
           </div>
 

@@ -5,13 +5,14 @@ import { useEffect, useState } from "react";
 interface CountdownProps {
   target: number; // unix timestamp (seconds)
   className?: string;
+  style?: React.CSSProperties;
 }
 
 function pad(n: number) {
   return String(n).padStart(2, "0");
 }
 
-export function Countdown({ target, className }: CountdownProps) {
+export function Countdown({ target, className, style }: CountdownProps) {
   const [diff, setDiff] = useState(target - Math.floor(Date.now() / 1000));
 
   useEffect(() => {
@@ -29,8 +30,8 @@ export function Countdown({ target, className }: CountdownProps) {
   const s = diff % 60;
 
   return (
-    <span className={className}>
-      {d > 0 && `${d}d `}{pad(h)}:{pad(m)}:{pad(s)}
+    <span className={className} style={style}>
+      {d > 0 && `${d}d `}{pad(h)}h {pad(m)}m {pad(s)}s
     </span>
   );
 }

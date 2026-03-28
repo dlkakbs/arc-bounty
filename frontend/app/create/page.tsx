@@ -12,6 +12,7 @@ export default function CreateBountyPage() {
   const router = useRouter();
   const { address, isConnected } = useAccount();
 
+  const [title, setTitle] = useState("");
   const [taskDescription, setTaskDescription] = useState("");
   const [reward, setReward] = useState("");
   const [deadline, setDeadline] = useState("");
@@ -23,15 +24,31 @@ export default function CreateBountyPage() {
 
   const { writeContract, data: txHash, isPending } = useWriteContract();
 
-  const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({
+  const { isLoading: isConfirming, isSuccess: isConfirmed, data: receipt } = useWaitForTransactionReceipt({
     hash: txHash,
   });
+
+  // After confirmation, parse bountyId from receipt and store title+description to localStorage
+  if (isConfirmed && receipt && !newBountyId) {
+    try {
+      const log = receipt.logs[0];
+      const bountyId = log?.topics?.[1] ? String(parseInt(log.topics[1], 16)) : null;
+      if (bountyId) {
+        localStorage.setItem(`bounty_${bountyId}`, JSON.stringify({ title, description: taskDescription }));
+        setNewBountyId(bountyId);
+      }
+    } catch {}
+  }
 
   const taskHash = taskDescription ? keccak256(toHex(taskDescription)) : null;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    if (!title.trim()) {
+      toast.error("Task title is required");
+      return;
+    }
     if (!taskDescription.trim()) {
       toast.error("Task description is required");
       return;
@@ -138,6 +155,7 @@ export default function CreateBountyPage() {
         </p>
         <div className="card" style={{ textAlign:'left', marginBottom:'2rem' }}>
           {[
+            { label:'Title',   val: title },
             { label:'Tx Hash', val: `${txHash.slice(0,10)}...${txHash.slice(-6)}` },
             { label:'Reward',  val: `${reward} USDC` },
             { label:'Validation', val: validationType === 0 ? 'Manual Approval' : 'Auto-Pay' },
@@ -152,7 +170,7 @@ export default function CreateBountyPage() {
         <div style={{ display:'flex', gap:'1rem', justifyContent:'center' }}>
           <button onClick={handleGoToBounty} className="btn-primary">View All Bounties</button>
           <button className="btn-ghost" onClick={() => {
-            setTaskDescription(""); setReward(""); setDeadline("");
+            setTitle(""); setTaskDescription(""); setReward(""); setDeadline("");
             setValidatorAddress(""); setChallengePeriodHours("48");
             window.location.reload();
           }}>Create Another</button>
@@ -190,6 +208,20 @@ export default function CreateBountyPage() {
       </div>
 
       <form onSubmit={handleSubmit} style={{ display:'flex', flexDirection:'column', gap:'1.25rem' }}>
+        <div>
+          <label style={{ fontSize:'0.65rem', letterSpacing:'0.15em', textTransform:'uppercase',
+            color:'var(--muted)', display:'block', marginBottom:'0.5rem' }}>
+            Title
+          </label>
+          <input
+            className="input-field"
+            placeholder="e.g. Analyze wallet transaction history"
+            value={title}
+            onChange={e => setTitle(e.target.value)}
+            required
+          />
+        </div>
+
         <div>
           <label style={{ fontSize:'0.65rem', letterSpacing:'0.15em', textTransform:'uppercase',
             color:'var(--muted)', display:'block', marginBottom:'0.5rem' }}>
