@@ -448,14 +448,14 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
                   {isValidator && validationType === 0 && !sub.approved && !sub.rejected && status === 0 && (
                     <>
                       <button onClick={() => handleApprove(sub.agent)} disabled={isBusy}
-                        style={{ fontFamily:'var(--mono)', fontSize:'0.65rem',
-                          padding:'0.3rem 0.75rem', background:'transparent',
+                        style={{ fontFamily:'var(--mono)', fontSize:'0.75rem', letterSpacing:'0.06em',
+                          padding:'0.45rem 0', width:'6rem', textAlign:'center', background:'transparent',
                           border:'1px solid var(--green)', color:'var(--green)', cursor:'crosshair' }}>
                         Approve
                       </button>
                       <button onClick={() => handleReject(sub.agent)} disabled={isBusy}
-                        style={{ fontFamily:'var(--mono)', fontSize:'0.65rem',
-                          padding:'0.3rem 0.75rem', background:'transparent',
+                        style={{ fontFamily:'var(--mono)', fontSize:'0.75rem', letterSpacing:'0.06em',
+                          padding:'0.45rem 0', width:'6rem', textAlign:'center', background:'transparent',
                           border:'1px solid var(--red)', color:'var(--red)', cursor:'crosshair' }}>
                         Reject
                       </button>
