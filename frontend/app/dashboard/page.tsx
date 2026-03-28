@@ -92,8 +92,22 @@ const IDENTITY_REGISTRY_ABI = [
                                                                                                                                                                                                                                                                                                                                         const totalAgents = new Set(submissions.flat().map((s: any) => s?.agent).filter(Boolean)).size;
                                                                                                                                                                                                                                                                                                                                           const now = Math.floor(Date.now() / 1000);
           const PER_PAGE = 10;
+          const sortedIds = [...ids].sort((a, b) => {
+            const ba = bounties[Number(a) - 1];
+            const bb = bounties[Number(b) - 1];
+            const statusOrder = (b: any) => {
+              if (!b) return 3;
+              const s = Number(b[7]);
+              if (s === 0 && Number(b[3]) >= now) return 0; // open
+              if (s === 1) return 1;                         // completed
+              return 2;                                      // expired / cancelled
+            };
+            const diff = statusOrder(ba) - statusOrder(bb);
+            if (diff !== 0) return diff;
+            return Number(b) - Number(a); // newest first within same group
+          });
           const totalPages = Math.ceil(count / PER_PAGE);
-          const recentIds = [...ids].reverse().slice((page - 1) * PER_PAGE, page * PER_PAGE);
+          const recentIds = sortedIds.slice((page - 1) * PER_PAGE, page * PER_PAGE);
 
                                                                                                                                                                                                                                                                                                                                             function getBountyTitle(id: bigint): string {
                                                                                                                                                                                                                                                                                                                                                 try {
