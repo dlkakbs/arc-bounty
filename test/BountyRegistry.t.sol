@@ -74,6 +74,8 @@ contract BountyRegistryTest is Test {
     function _createExplicit() internal returns (uint256) {
         vm.prank(institution);
         return registry.createBounty{value: REWARD}(
+            "Test Task",
+            "Test task description",
             TASK,
             block.timestamp + 7 days,
             BountyRegistry.ValidationType.EXPLICIT,
@@ -85,6 +87,8 @@ contract BountyRegistryTest is Test {
     function _createOptimistic(uint256 period) internal returns (uint256) {
         vm.prank(institution);
         return registry.createBounty{value: REWARD}(
+            "Test Task",
+            "Test task description",
             TASK,
             block.timestamp + 7 days,
             BountyRegistry.ValidationType.OPTIMISTIC,
@@ -99,6 +103,8 @@ contract BountyRegistryTest is Test {
         uint256 id = _createExplicit();
         (
             address creator,
+            ,
+            ,
             bytes32 taskHash,
             uint256 reward,
             ,
@@ -118,13 +124,13 @@ contract BountyRegistryTest is Test {
     function test_createBounty_zeroReward_reverts() public {
         vm.prank(institution);
         vm.expectRevert(BountyRegistry.ZeroReward.selector);
-        registry.createBounty{value: 0}(TASK, block.timestamp + 1 days, BountyRegistry.ValidationType.EXPLICIT, validator, 0);
+        registry.createBounty{value: 0}("T", "D", TASK, block.timestamp + 1 days, BountyRegistry.ValidationType.EXPLICIT, validator, 0);
     }
 
     function test_createBounty_pastDeadline_reverts() public {
         vm.prank(institution);
         vm.expectRevert(BountyRegistry.InvalidDeadline.selector);
-        registry.createBounty{value: REWARD}(TASK, block.timestamp - 1, BountyRegistry.ValidationType.EXPLICIT, validator, 0);
+        registry.createBounty{value: REWARD}("T", "D", TASK, block.timestamp - 1, BountyRegistry.ValidationType.EXPLICIT, validator, 0);
     }
 
     // ── cancelBounty ─────────────────────────────────────────────────────────
@@ -137,7 +143,7 @@ contract BountyRegistryTest is Test {
         registry.cancelBounty(id);
 
         assertEq(institution.balance, before + REWARD);
-        (, , , , , , , BountyRegistry.BountyStatus status,) = registry.bounties(id);
+        (, , , , , , , , , BountyRegistry.BountyStatus status,) = registry.bounties(id);
         assertEq(uint8(status), uint8(BountyRegistry.BountyStatus.CANCELLED));
     }
 
@@ -152,7 +158,7 @@ contract BountyRegistryTest is Test {
         uint256 id = _createExplicit();
 
         vm.prank(agent1);
-        registry.submitResult(id, RESULT_1);
+        registry.submitResult(id, RESULT_1, "result 1");
 
         vm.prank(institution);
         vm.expectRevert(BountyRegistry.BountyHasSubmissions.selector);
@@ -165,7 +171,7 @@ contract BountyRegistryTest is Test {
         uint256 id = _createExplicit();
 
         vm.prank(agent1);
-        registry.submitResult(id, RESULT_1);
+        registry.submitResult(id, RESULT_1, "result 1");
 
         BountyRegistry.Submission[] memory subs = registry.getSubmissions(id);
         assertEq(subs.length, 1);
@@ -180,18 +186,18 @@ contract BountyRegistryTest is Test {
 
         vm.prank(stranger);
         vm.expectRevert(BountyRegistry.NotRegisteredAgent.selector);
-        registry.submitResult(id, RESULT_1);
+        registry.submitResult(id, RESULT_1, "result 1");
     }
 
     function test_submitResult_duplicate_reverts() public {
         uint256 id = _createExplicit();
 
         vm.prank(agent1);
-        registry.submitResult(id, RESULT_1);
+        registry.submitResult(id, RESULT_1, "result 1");
 
         vm.prank(agent1);
         vm.expectRevert(BountyRegistry.AlreadySubmitted.selector);
-        registry.submitResult(id, RESULT_1);
+        registry.submitResult(id, RESULT_1, "result 1");
     }
 
     function test_submitResult_afterDeadline_reverts() public {
@@ -201,7 +207,7 @@ contract BountyRegistryTest is Test {
 
         vm.prank(agent1);
         vm.expectRevert(BountyRegistry.DeadlinePassed.selector);
-        registry.submitResult(id, RESULT_1);
+        registry.submitResult(id, RESULT_1, "result 1");
     }
 
     // ── EXPLICIT: approveResult ───────────────────────────────────────────────
@@ -210,7 +216,7 @@ contract BountyRegistryTest is Test {
         uint256 id = _createExplicit();
 
         vm.prank(agent1);
-        registry.submitResult(id, RESULT_1);
+        registry.submitResult(id, RESULT_1, "result 1");
 
         uint256 before = agent1.balance;
 
@@ -230,7 +236,7 @@ contract BountyRegistryTest is Test {
         uint256 id = _createExplicit();
 
         vm.prank(agent1);
-        registry.submitResult(id, RESULT_1);
+        registry.submitResult(id, RESULT_1, "result 1");
 
         vm.prank(agent2);
         vm.expectRevert(BountyRegistry.NotValidator.selector);
@@ -241,14 +247,14 @@ contract BountyRegistryTest is Test {
         uint256 id = _createExplicit();
 
         vm.prank(agent1);
-        registry.submitResult(id, RESULT_1);
+        registry.submitResult(id, RESULT_1, "result 1");
 
         vm.prank(validator);
         registry.rejectResult(id, agent1);
 
         // Bounty hâlâ OPEN — agent2 hâlâ kazanabilir
         vm.prank(agent2);
-        registry.submitResult(id, RESULT_2);
+        registry.submitResult(id, RESULT_2, "result 2");
 
         uint256 before = agent2.balance;
         vm.prank(validator);
@@ -264,7 +270,7 @@ contract BountyRegistryTest is Test {
         uint256 id = _createOptimistic(period);
 
         vm.prank(agent1);
-        registry.submitResult(id, RESULT_1);
+        registry.submitResult(id, RESULT_1, "result 1");
 
         // Challenge süresi dolmadan önce claim revert eder
         vm.prank(agent1);
@@ -286,7 +292,7 @@ contract BountyRegistryTest is Test {
         uint256 id = _createOptimistic(0); // default period
 
         vm.prank(agent1);
-        registry.submitResult(id, RESULT_1);
+        registry.submitResult(id, RESULT_1, "result 1");
 
         // agent2 itiraz eder
         vm.prank(agent2);
@@ -303,7 +309,7 @@ contract BountyRegistryTest is Test {
         uint256 id = _createOptimistic(0);
 
         vm.prank(agent1);
-        registry.submitResult(id, RESULT_1);
+        registry.submitResult(id, RESULT_1, "result 1");
 
         vm.prank(agent2);
         registry.challengeResult(id, agent1);
@@ -322,7 +328,7 @@ contract BountyRegistryTest is Test {
         uint256 id = _createOptimistic(0);
 
         vm.prank(agent1);
-        registry.submitResult(id, RESULT_1);
+        registry.submitResult(id, RESULT_1, "result 1");
 
         vm.prank(agent2);
         registry.challengeResult(id, agent1);
@@ -341,15 +347,16 @@ contract BountyRegistryTest is Test {
     function test_successRate() public {
         // agent1: 2 attempt, 1 win → %50
         uint256 id1 = _createExplicit();
-        vm.prank(agent1); registry.submitResult(id1, RESULT_1);
+        vm.prank(agent1); registry.submitResult(id1, RESULT_1, "result 1");
         vm.prank(validator); registry.approveResult(id1, agent1);
 
         vm.prank(institution);
         uint256 id2 = registry.createBounty{value: REWARD}(
+            "Task 2", "Task 2 description",
             keccak256("task2"), block.timestamp + 1 days,
             BountyRegistry.ValidationType.EXPLICIT, validator, 0
         );
-        vm.prank(agent1); registry.submitResult(id2, RESULT_1);
+        vm.prank(agent1); registry.submitResult(id2, RESULT_1, "result 1");
         vm.prank(validator); registry.rejectResult(id2, agent1);
 
         assertEq(registry.successRate(agent1), 5_000); // 50%
@@ -358,8 +365,8 @@ contract BountyRegistryTest is Test {
     function test_multipleAgents_compete() public {
         uint256 id = _createExplicit();
 
-        vm.prank(agent1); registry.submitResult(id, RESULT_1);
-        vm.prank(agent2); registry.submitResult(id, RESULT_2);
+        vm.prank(agent1); registry.submitResult(id, RESULT_1, "result 1");
+        vm.prank(agent2); registry.submitResult(id, RESULT_2, "result 2");
 
         assertEq(registry.getSubmissions(id).length, 2);
 

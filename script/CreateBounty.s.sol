@@ -16,6 +16,8 @@ contract CreateBountyScript is Script {
         BountyRegistry registry = BountyRegistry(payable(BOUNTY_REGISTRY));
 
         uint256 bountyId = registry.createBounty{value: 1e18}( // 1 USDC
+            "Analyze Arc Network TVL Growth Q1 2026",
+            "Analyze Arc Network TVL growth Q1 2026 and produce a detailed report.",
             keccak256("Analyze Arc Network TVL growth Q1 2026 and produce a report"),
             block.timestamp + 3 days,
             BountyRegistry.ValidationType.OPTIMISTIC,

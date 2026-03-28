@@ -23,15 +23,14 @@ contract AgentSubmitScript is Script {
         // ── 1. submitResult ──────────────────────────────────────────────────
         console.log("Agent:", agent);
 
-        (,,,,,,,BountyRegistry.BountyStatus status,) = registry.bounties(BOUNTY_ID);
+        (,,,,,,,,,BountyRegistry.BountyStatus status,) = registry.bounties(BOUNTY_ID);
         console.log("Bounty status (0=OPEN):", uint8(status));
 
-        bytes32 resultHash = keccak256(
-            "Arc TVL grew 340% in Q1 2026 driven by BlackRock integration. Full report: ipfs://Qm..."
-        );
+        string memory result = "Arc TVL grew 340% in Q1 2026 driven by BlackRock integration. Full report: ipfs://Qm...";
+        bytes32 resultHash = keccak256(bytes(result));
 
         vm.startBroadcast(agentKey);
-        registry.submitResult(BOUNTY_ID, resultHash);
+        registry.submitResult(BOUNTY_ID, resultHash, result);
         vm.stopBroadcast();
 
         console.log("Result submitted! Hash:");

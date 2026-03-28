@@ -29,6 +29,8 @@ contract BountyRegistry {
 
     struct Bounty {
         address        creator;
+        string         title;            // human-readable task title
+        string         description;      // full task description
         bytes32        taskHash;         // keccak256(task description) veya IPFS CID
         uint256        reward;           // native USDC
         uint256        deadline;         // submission deadline
@@ -75,9 +77,11 @@ contract BountyRegistry {
         uint256 indexed bountyId,
         address indexed creator,
         uint256 reward,
-        ValidationType  validationType
+        ValidationType  validationType,
+        string title,
+        string description
     );
-    event ResultSubmitted(uint256 indexed bountyId, address indexed agent, bytes32 resultHash);
+    event ResultSubmitted(uint256 indexed bountyId, address indexed agent, bytes32 resultHash, string result);
     event ResultApproved(uint256 indexed bountyId, address indexed agent);
     event ResultRejected(uint256 indexed bountyId, address indexed agent);
     event ResultChallenged(uint256 indexed bountyId, address indexed agent, address indexed challenger);
@@ -112,12 +116,16 @@ contract BountyRegistry {
     // ──────────────────────────────────────────────── Institution Functions ──
 
     /// @notice Yeni bounty oluştur. msg.value = USDC ödül miktarı.
+    /// @param title          görev başlığı (okunabilir)
+    /// @param description    görev açıklaması (tam metin)
     /// @param taskHash       keccak256(görev açıklaması) veya IPFS CID bytes32
     /// @param deadline       submission son tarihi (unix timestamp)
     /// @param validationType EXPLICIT veya OPTIMISTIC
     /// @param validator      EXPLICIT'te onaylayan; OPTIMISTIC'te dispute arbitratoru
     /// @param challengePeriod OPTIMISTIC için itiraz süresi (0 → DEFAULT_CHALLENGE_PERIOD)
     function createBounty(
+        string calldata title,
+        string calldata description,
         bytes32        taskHash,
         uint256        deadline,
         ValidationType validationType,
@@ -136,6 +144,8 @@ contract BountyRegistry {
 
         bounties[bountyId] = Bounty({
             creator:         msg.sender,
+            title:           title,
+            description:     description,
             taskHash:        taskHash,
             reward:          msg.value,
             deadline:        deadline,
@@ -146,7 +156,7 @@ contract BountyRegistry {
             winner:          address(0)
         });
 
-        emit BountyCreated(bountyId, msg.sender, msg.value, validationType);
+        emit BountyCreated(bountyId, msg.sender, msg.value, validationType, title, description);
     }
 
     /// @notice Henüz submit edilmemiş bounty'yi iptal et, USDC'yi geri al.
@@ -169,8 +179,9 @@ contract BountyRegistry {
     // ────────────────────────────────────────────────────────── Agent Functions ──
 
     /// @notice Arc IdentityRegistry'de kayıtlı agent submit eder.
-    /// @param resultHash keccak256(sonuç) veya IPFS CID bytes32
-    function submitResult(uint256 bountyId, bytes32 resultHash) external {
+    /// @param resultHash keccak256(sonuç) — integrity kontrolü için
+    /// @param result     sonuç metni — event log'unda kalıcı olarak saklanır
+    function submitResult(uint256 bountyId, bytes32 resultHash, string calldata result) external {
         if (identityRegistry.balanceOf(msg.sender) == 0) revert NotRegisteredAgent();
 
         Bounty storage b = bounties[bountyId];
@@ -191,7 +202,7 @@ contract BountyRegistry {
 
         agentStats[msg.sender].attempted++;
 
-        emit ResultSubmitted(bountyId, msg.sender, resultHash);
+        emit ResultSubmitted(bountyId, msg.sender, resultHash, result);
     }
 
     // ──────────────────────────────────────────── EXPLICIT Validation ──

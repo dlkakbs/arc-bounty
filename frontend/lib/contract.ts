@@ -8,6 +8,8 @@ export const BOUNTY_REGISTRY_ABI = [
     type: "function",
     stateMutability: "payable",
     inputs: [
+      { name: "title", type: "string" },
+      { name: "description", type: "string" },
       { name: "taskHash", type: "bytes32" },
       { name: "deadline", type: "uint256" },
       { name: "validationType", type: "uint8" },
@@ -23,6 +25,7 @@ export const BOUNTY_REGISTRY_ABI = [
     inputs: [
       { name: "bountyId", type: "uint256" },
       { name: "resultHash", type: "bytes32" },
+      { name: "result", type: "string" },
     ],
     outputs: [],
   },
@@ -95,6 +98,8 @@ export const BOUNTY_REGISTRY_ABI = [
     inputs: [{ name: "bountyId", type: "uint256" }],
     outputs: [
       { name: "creator", type: "address" },
+      { name: "title", type: "string" },
+      { name: "description", type: "string" },
       { name: "taskHash", type: "bytes32" },
       { name: "reward", type: "uint256" },
       { name: "deadline", type: "uint256" },
@@ -151,6 +156,8 @@ export const BOUNTY_REGISTRY_ABI = [
       { name: "creator", type: "address", indexed: true },
       { name: "reward", type: "uint256", indexed: false },
       { name: "validationType", type: "uint8", indexed: false },
+      { name: "title", type: "string", indexed: false },
+      { name: "description", type: "string", indexed: false },
     ],
   },
   {
@@ -160,6 +167,7 @@ export const BOUNTY_REGISTRY_ABI = [
       { name: "bountyId", type: "uint256", indexed: true },
       { name: "agent", type: "address", indexed: true },
       { name: "resultHash", type: "bytes32", indexed: false },
+      { name: "result", type: "string", indexed: false },
     ],
   },
   {

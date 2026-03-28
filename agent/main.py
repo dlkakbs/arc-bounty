@@ -16,7 +16,7 @@ from web3 import Web3
 
 from wallet import Wallet
 from bounty import BountyContract
-from analyzer import decode_target, analyze_wallet, report_to_result_hash
+from analyzer import decode_target, analyze_wallet, report_to_result_hash, report_to_result_text
 
 load_dotenv()
 
@@ -37,11 +37,11 @@ POLL_INTERVAL    = int(os.getenv("POLL_INTERVAL", "30"))   # saniye
 
 # ─── Task runner ─────────────────────────────────────────────────────────────
 
-def run_task(w3: Web3, bounty: dict) -> bytes | None:
+def run_task(w3: Web3, bounty: dict) -> tuple[bytes, str] | None:
     """
     taskHash convention: bytes32(uint160(targetWalletAddress))
-    Son 20 byte'ı decode edip on-chain wallet analizi yapar,
-    raporu JSON'a çevirip sha256 hash'ini döndürür.
+    Son 20 byte'ı decode edip on-chain wallet analizi yapar.
+    Returns (result_hash, result_text) or None if task is not applicable.
     """
     target = decode_target(bounty["taskHash"])
     if target is None:
@@ -62,7 +62,7 @@ def run_task(w3: Web3, bounty: dict) -> bytes | None:
         json.dump(report, f, indent=2)
     log.info(f"  Rapor kaydedildi: {out_path}")
 
-    return report_to_result_hash(report)
+    return report_to_result_hash(report), report_to_result_text(report)
 
 
 # ─── Main loop ────────────────────────────────────────────────────────────────
@@ -117,10 +117,11 @@ def _cycle(w3, wallet: Wallet, bounties: BountyContract, submitted_ids: set):
         already = bounties.has_submitted(bid, wallet.address)
         if not already and bid not in submitted_ids:
             log.info(f"  #{bid} [{b['validationType']}] ödül={b['reward_eth']} USDC — submit ediliyor...")
-            result_hash = run_task(w3, b)
-            if result_hash is None:
+            task_result = run_task(w3, b)
+            if task_result is None:
                 continue
-            tx = bounties.build_submit_tx(bid, result_hash, wallet.address)
+            result_hash, result_text = task_result
+            tx = bounties.build_submit_tx(bid, result_hash, result_text, wallet.address)
             tx_hash = wallet.sign_and_send(tx)
             log.info(f"  Submit tx: {tx_hash}")
             wallet.wait(tx_hash)

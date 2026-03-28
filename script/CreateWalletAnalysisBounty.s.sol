@@ -31,7 +31,16 @@ contract CreateWalletAnalysisBountyScript is Script {
 
         BountyRegistry registry = BountyRegistry(payable(BOUNTY_REGISTRY));
 
+        string memory titleStr = "Wallet Risk Analysis";
+        string memory descStr  = string(abi.encodePacked(
+            "Analyze the on-chain activity of wallet ",
+            vm.toString(targetWallet),
+            " and produce a risk report."
+        ));
+
         uint256 bountyId = registry.createBounty{value: rewardUsdc * 1e18}(
+            titleStr,
+            descStr,
             taskHash,
             block.timestamp + 7 days,
             BountyRegistry.ValidationType.OPTIMISTIC,

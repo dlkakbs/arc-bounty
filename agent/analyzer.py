@@ -142,6 +142,11 @@ def _risk_label(score: int) -> str:
     return "CRITICAL"
 
 
+def report_to_result_text(report: dict) -> str:
+    """Raporu on-chain event log'una yazılacak JSON metnine çevir."""
+    return json.dumps(report, sort_keys=True, indent=2)
+
+
 def report_to_result_hash(report: dict) -> bytes:
     """Raporu deterministik bytes32 hash'e çevir (submit için)."""
     canonical = json.dumps(report, sort_keys=True, separators=(",", ":"))

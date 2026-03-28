@@ -26,18 +26,23 @@ class BountyContract:
 
     def get_bounty(self, bounty_id: int) -> dict:
         b = self.contract.functions.bounties(bounty_id).call()
+        # b[0]=creator, b[1]=title, b[2]=description, b[3]=taskHash,
+        # b[4]=reward, b[5]=deadline, b[6]=challengePeriod,
+        # b[7]=validationType, b[8]=validator, b[9]=status, b[10]=winner
         return {
             "id":              bounty_id,
             "creator":         b[0],
-            "taskHash":        b[1].hex(),
-            "reward":          b[2],
-            "reward_eth":      self.w3.from_wei(b[2], "ether"),
-            "deadline":        b[3],
-            "challengePeriod": b[4],
-            "validationType":  VALIDATION_TYPE.get(b[5], b[5]),
-            "validator":       b[6],
-            "status":          BOUNTY_STATUS.get(b[7], b[7]),
-            "winner":          b[8],
+            "title":           b[1],
+            "description":     b[2],
+            "taskHash":        b[3].hex(),
+            "reward":          b[4],
+            "reward_eth":      self.w3.from_wei(b[4], "ether"),
+            "deadline":        b[5],
+            "challengePeriod": b[6],
+            "validationType":  VALIDATION_TYPE.get(b[7], b[7]),
+            "validator":       b[8],
+            "status":          BOUNTY_STATUS.get(b[9], b[9]),
+            "winner":          b[10],
         }
 
     def get_open_bounties(self) -> list[dict]:
@@ -80,9 +85,9 @@ class BountyContract:
 
     # ─── Write ──────────────────────────────────────────────────────────────
 
-    def build_submit_tx(self, bounty_id: int, result_hash: bytes, sender: str) -> dict:
+    def build_submit_tx(self, bounty_id: int, result_hash: bytes, result_text: str, sender: str) -> dict:
         return self.contract.functions.submitResult(
-            bounty_id, result_hash
+            bounty_id, result_hash, result_text
         ).build_transaction({
             "from":  Web3.to_checksum_address(sender),
             "nonce": self.w3.eth.get_transaction_count(Web3.to_checksum_address(sender)),

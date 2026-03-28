@@ -1,7 +1,7 @@
 "use client";
 
-import { use, useState } from "react";
-import { useAccount, useReadContract, useReadContracts, useWriteContract, useWaitForTransactionReceipt } from "wagmi";
+import { use, useState, useEffect } from "react";
+import { useAccount, useReadContract, useReadContracts, useWriteContract, useWaitForTransactionReceipt, usePublicClient } from "wagmi";
 import { BOUNTY_REGISTRY_ADDRESS, BOUNTY_REGISTRY_ABI } from "@/lib/contract";
 import { keccak256, toHex, formatEther } from "viem";
 import { toast } from "sonner";
@@ -25,9 +25,37 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
 
   const [resultText, setResultText] = useState("");
   const [showSubmitForm, setShowSubmitForm] = useState(false);
+  const [resultTexts, setResultTexts] = useState<Record<string, string>>({});
 
-  let storedTask: { title?: string; description?: string } = {};
-  try { storedTask = JSON.parse(localStorage.getItem(`bounty_${id}`) ?? '{}'); } catch {}
+  const publicClient = usePublicClient();
+
+  useEffect(() => {
+    if (!publicClient) return;
+    publicClient.getLogs({
+      address: BOUNTY_REGISTRY_ADDRESS,
+      event: {
+        type: "event",
+        name: "ResultSubmitted",
+        inputs: [
+          { name: "bountyId", type: "uint256", indexed: true },
+          { name: "agent", type: "address", indexed: true },
+          { name: "resultHash", type: "bytes32", indexed: false },
+          { name: "result", type: "string", indexed: false },
+        ],
+      } as const,
+      args: { bountyId },
+      fromBlock: 0n,
+    }).then((logs) => {
+      const map: Record<string, string> = {};
+      for (const log of logs) {
+        const agent = (log.args as any).agent as string;
+        const result = (log.args as any).result as string;
+        if (agent && result) map[agent.toLowerCase()] = result;
+      }
+      setResultTexts(map);
+    }).catch(() => {});
+  }, [publicClient, bountyId]);
+
 
   const { data: bountyRaw, refetch: refetchBounty } = useReadContract({
     address: BOUNTY_REGISTRY_ADDRESS,
@@ -72,8 +100,8 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
     );
   }
 
-  const [creator, taskHash, reward, deadline, challengePeriod, validationType, validator, status, winner] =
-    bountyRaw as [string, `0x${string}`, bigint, bigint, bigint, number, string, number, string];
+  const [creator, title, description, taskHash, reward, deadline, challengePeriod, validationType, validator, status, winner] =
+    bountyRaw as [string, string, string, `0x${string}`, bigint, bigint, bigint, number, string, number, string];
 
   const submissions = (submissionsRaw as any[]) ?? [];
   const now = Math.floor(Date.now() / 1000);
@@ -101,7 +129,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
         address: BOUNTY_REGISTRY_ADDRESS,
         abi: BOUNTY_REGISTRY_ABI,
         functionName: "submitResult",
-        args: [bountyId, resultHash],
+        args: [bountyId, resultHash, resultText],
       },
       {
         onSuccess: () => {
@@ -188,7 +216,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
       <div style={{ marginBottom:'1.5rem' }}>
         <div style={{ display:'flex', alignItems:'center', gap:'1rem', marginBottom:'1rem', flexWrap:'wrap' }}>
           <h1 style={{ fontFamily:'var(--sans)', fontSize:'1.75rem', fontWeight:800, color:'#fff' }}>
-            {storedTask.title || `Bounty #${id}`}
+            {title || `Bounty #${id}`}
           </h1>
           <span className={`badge badge-${status === 0 && isDeadlinePassed ? 'red' : status === 0 ? 'green' : status === 2 ? 'red' : 'muted'}`}>
             {status === 0 && isDeadlinePassed ? 'Expired' : statusInfo.label}
@@ -196,18 +224,18 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
           <span className="badge badge-amber">{typeInfo.label}</span>
         </div>
 
-        <p style={{ color:'var(--muted)', fontSize:'0.8rem', marginBottom: storedTask.description ? '1.5rem' : 0 }}>
+        <p style={{ color:'var(--muted)', fontSize:'0.8rem', marginBottom: description ? '1.5rem' : 0 }}>
           Created by{' '}
           <a href={`/profile/${creator}`} style={{ color:'var(--amber)' }}>
             {creator.slice(0,6)}...{creator.slice(-4)}
           </a>
         </p>
 
-        {storedTask.description && (
+        {description && (
           <div className="card" style={{ marginTop:'1.5rem', marginBottom:0 }}>
             <p className="section-label" style={{ marginBottom:'1rem' }}>// TASK DESCRIPTION</p>
             <p style={{ fontSize:'0.82rem', color:'var(--text)', lineHeight:1.7, whiteSpace:'pre-wrap' }}>
-              {storedTask.description}
+              {description}
             </p>
           </div>
         )}
@@ -250,11 +278,22 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
             <p style={{ fontSize:'0.6rem', letterSpacing:'0.15em', color:'var(--muted)', marginBottom:'0.5rem' }}>
               CHALLENGE PERIOD
             </p>
-            <p style={{ fontSize:'0.8rem', color:'var(--text)' }}>
+            <p style={{ fontFamily:'var(--mono)', fontSize:'0.85rem', fontWeight:700, color:'#fff' }}>
               {Math.floor(challengePeriodNum / 3600)}h
             </p>
           </div>
-        ) : <div />}
+        ) : (
+          <div className="card">
+            <p style={{ fontSize:'0.6rem', letterSpacing:'0.15em', color:'var(--muted)', marginBottom:'0.5rem' }}>
+              VALIDATOR
+            </p>
+            <a href={`/profile/${validator}`} style={{
+              fontFamily:'var(--mono)', fontSize:'0.75rem', color:'var(--amber)', textDecoration:'none',
+            }}>
+              {validator?.slice(0,6)}...{validator?.slice(-4)}
+            </a>
+          </div>
+        )}
 
         {/* Winner row (full width) */}
         {status === 1 && winner && winner !== '0x0000000000000000000000000000000000000000' && (
@@ -311,7 +350,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
         <div className="card" style={{ marginBottom:'1.5rem' }}>
           <p className="section-label" style={{ marginBottom:'1rem' }}>// Submit Result</p>
           <p style={{ color:'var(--muted)', fontSize:'0.72rem', marginBottom:'0.75rem' }}>
-            Describe your result. It will be hashed (keccak256) before submission.
+            Submit your result. It will be hashed before submission.
           </p>
           <textarea
             className="input-field"
@@ -378,6 +417,13 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
                   <code style={{ fontSize:'0.68rem', color:'var(--text)' }}>
                     {sub.resultHash?.slice(0,10)}...{sub.resultHash?.slice(-6)}
                   </code>
+                  {resultTexts[sub.agent?.toLowerCase()] && (
+                    <p style={{ fontSize:'0.72rem', color:'var(--text)', marginTop:'0.5rem',
+                      lineHeight:1.6, whiteSpace:'pre-wrap', maxHeight:'6rem',
+                      overflow:'hidden', position:'relative' }}>
+                      {resultTexts[sub.agent?.toLowerCase()]}
+                    </p>
+                  )}
                   {validationType === 1 && isChallengeActive && (
                     <p style={{ fontSize:'0.65rem', color:'var(--amber)', marginTop:'0.25rem' }}>
                       Challenge window: {new Date(challengeExpiry * 1000).toLocaleString()}

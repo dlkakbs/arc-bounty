@@ -20,6 +20,8 @@ contract LeaderboardScript is Script {
         for (uint256 i = 1; i <= total; i++) {
             (
                 address creator,
+                ,
+                ,
                 bytes32 taskHash,
                 uint256 reward,
                 uint256 deadline,

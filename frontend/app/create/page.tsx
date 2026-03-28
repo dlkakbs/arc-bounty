@@ -28,13 +28,7 @@ export default function CreateBountyPage() {
     hash: txHash,
   });
 
-  // Save title+desc immediately when txHash is known (before confirmation)
-  useEffect(() => {
-    if (!txHash || !title) return;
-    localStorage.setItem(`pending_${txHash}`, JSON.stringify({ title, description: taskDescription }));
-  }, [txHash]);
-
-  // After confirmation, find bountyId from receipt and move pending entry to bounty_N key
+  // After confirmation, get bountyId from receipt for the redirect
   useEffect(() => {
     if (!isConfirmed || !receipt || !txHash || newBountyId) return;
     const log = receipt.logs.find(
@@ -43,11 +37,7 @@ export default function CreateBountyPage() {
         l.topics.length >= 2
     );
     if (log?.topics?.[1]) {
-      const bountyId = String(BigInt(log.topics[1]));
-      const pending = localStorage.getItem(`pending_${txHash}`);
-      localStorage.setItem(`bounty_${bountyId}`, pending ?? JSON.stringify({ title, description: taskDescription }));
-      if (pending) localStorage.removeItem(`pending_${txHash}`);
-      setNewBountyId(bountyId);
+      setNewBountyId(String(BigInt(log.topics[1])));
     }
   }, [isConfirmed, receipt]);
 
@@ -92,6 +82,8 @@ export default function CreateBountyPage() {
         abi: BOUNTY_REGISTRY_ABI,
         functionName: "createBounty",
         args: [
+          title,
+          taskDescription,
           hash,
           BigInt(deadlineTs),
           validationType,

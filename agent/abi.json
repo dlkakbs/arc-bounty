@@ -92,6 +92,16 @@
         "internalType": "address"
       },
       {
+        "name": "title",
+        "type": "string",
+        "internalType": "string"
+      },
+      {
+        "name": "description",
+        "type": "string",
+        "internalType": "string"
+      },
+      {
         "name": "taskHash",
         "type": "bytes32",
         "internalType": "bytes32"
@@ -195,6 +205,16 @@
     "type": "function",
     "name": "createBounty",
     "inputs": [
+      {
+        "name": "title",
+        "type": "string",
+        "internalType": "string"
+      },
+      {
+        "name": "description",
+        "type": "string",
+        "internalType": "string"
+      },
       {
         "name": "taskHash",
         "type": "bytes32",
@@ -405,6 +425,11 @@
         "name": "resultHash",
         "type": "bytes32",
         "internalType": "bytes32"
+      },
+      {
+        "name": "result",
+        "type": "string",
+        "internalType": "string"
       }
     ],
     "outputs": [],
@@ -469,6 +494,18 @@
         "type": "uint8",
         "indexed": false,
         "internalType": "enum BountyRegistry.ValidationType"
+      },
+      {
+        "name": "title",
+        "type": "string",
+        "indexed": false,
+        "internalType": "string"
+      },
+      {
+        "name": "description",
+        "type": "string",
+        "indexed": false,
+        "internalType": "string"
       }
     ],
     "anonymous": false
@@ -576,6 +613,12 @@
         "type": "bytes32",
         "indexed": false,
         "internalType": "bytes32"
+      },
+      {
+        "name": "result",
+        "type": "string",
+        "indexed": false,
+        "internalType": "string"
       }
     ],
     "anonymous": false
