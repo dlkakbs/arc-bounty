@@ -75,7 +75,7 @@ export default function Dashboard() {
           { val: '0',                                                                  label:'Total Bounties', color:'var(--amber)' },
           { val: '0',                                                                  label:'Open Bounties',  color:'var(--green)' },
           { val: '$0',                                                                 label:'USDC Locked',    color:'var(--amber)' },
-          { val: totalAgents.toString(),                                              label:'Active Agents',  color:'var(--text)'  },
+          { val: '0',                                                                  label:'Active Agents',  color:'var(--text)'  },
         ].map(({ val, label, color }) => (
           <div key={label} style={{
             background:'var(--surface)', padding:'1.5rem', textAlign:'center',
