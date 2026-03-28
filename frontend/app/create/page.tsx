@@ -28,18 +28,25 @@ export default function CreateBountyPage() {
     hash: txHash,
   });
 
-  // After confirmation, parse bountyId from BountyCreated event and store title+description to localStorage
+  // Save title+desc immediately when txHash is known (before confirmation)
   useEffect(() => {
-    if (!isConfirmed || !receipt || newBountyId) return;
-    // BountyCreated: topics[0]=sig, topics[1]=bountyId(indexed), topics[2]=creator(indexed) → 3 topics
+    if (!txHash || !title) return;
+    localStorage.setItem(`pending_${txHash}`, JSON.stringify({ title, description: taskDescription }));
+  }, [txHash]);
+
+  // After confirmation, find bountyId from receipt and move pending entry to bounty_N key
+  useEffect(() => {
+    if (!isConfirmed || !receipt || !txHash || newBountyId) return;
     const log = receipt.logs.find(
       (l) =>
         l.address.toLowerCase() === BOUNTY_REGISTRY_ADDRESS.toLowerCase() &&
-        l.topics.length === 3
+        l.topics.length >= 2
     );
     if (log?.topics?.[1]) {
       const bountyId = String(BigInt(log.topics[1]));
-      localStorage.setItem(`bounty_${bountyId}`, JSON.stringify({ title, description: taskDescription }));
+      const pending = localStorage.getItem(`pending_${txHash}`);
+      localStorage.setItem(`bounty_${bountyId}`, pending ?? JSON.stringify({ title, description: taskDescription }));
+      if (pending) localStorage.removeItem(`pending_${txHash}`);
       setNewBountyId(bountyId);
     }
   }, [isConfirmed, receipt]);
