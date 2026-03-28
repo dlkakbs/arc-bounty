@@ -108,7 +108,6 @@ export default function BountiesPage() {
           textAlign:'center', padding:'6rem 2rem',
           color:'var(--muted)', fontSize:'0.8rem', letterSpacing:'0.1em',
         }}>
-          <div style={{ fontSize:'2rem', marginBottom:'1rem' }}>📭</div>
           NO BOUNTIES YET
         </div>
       ) : (

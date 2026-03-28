@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useWriteContract, useWaitForTransactionReceipt, useAccount } from "wagmi";
+import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { BOUNTY_REGISTRY_ADDRESS, BOUNTY_REGISTRY_ABI } from "@/lib/contract";
 import { keccak256, toHex, parseEther } from "viem";
 import { toast } from "sonner";
@@ -91,18 +92,36 @@ export default function CreateBountyPage() {
         <div style={{
           width:48, height:48, margin:'0 auto 1.25rem',
           display:'flex', alignItems:'center', justifyContent:'center',
-          border:'1px solid var(--amber)', color:'var(--amber)', fontSize:'1.5rem',
+          border:'1px solid var(--amber)',
         }}>
-          💛
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#f5a623" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="2" y="5" width="20" height="14" rx="2"/>
+            <path d="M16 12h2"/>
+            <path d="M2 10h20"/>
+          </svg>
         </div>
         <h2 style={{ fontFamily:'var(--mono)', fontSize:'0.85rem', letterSpacing:'0.15em',
           color:'var(--amber)', textTransform:'uppercase', marginBottom:'0.25rem' }}>
           Connect
         </h2>
         <h2 style={{ fontFamily:'var(--mono)', fontSize:'0.85rem', letterSpacing:'0.15em',
-          color:'var(--amber)', textTransform:'uppercase', marginBottom:'0' }}>
+          color:'var(--amber)', textTransform:'uppercase', marginBottom:'1.5rem' }}>
           Your Wallet
         </h2>
+        <ConnectButton.Custom>
+          {({ openConnectModal, mounted }) => (
+            <div {...(!mounted && { 'aria-hidden': true, style: { opacity: 0 } })}>
+              <button onClick={openConnectModal} style={{
+                fontFamily:'var(--mono)', fontSize:'0.75rem', letterSpacing:'0.12em',
+                textTransform:'uppercase', padding:'0.7rem 2rem',
+                background:'var(--amber)', color:'var(--bg)',
+                border:'none', cursor:'crosshair', fontWeight:'bold',
+              }}>
+                Connect Wallet
+              </button>
+            </div>
+          )}
+        </ConnectButton.Custom>
       </main>
     );
   }

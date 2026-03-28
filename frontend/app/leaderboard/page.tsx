@@ -87,9 +87,9 @@ export default function LeaderboardPage() {
         marginBottom:'2rem',
       }}>
         {[
-          { val: uniqueAgents.length,                                       label:'Total Agents'      },
-          { val: allSubmissions.length,                                     label:'Total Submissions' },
-          { val: `$${parseFloat(formatEther(totalEarned)).toFixed(0)}`,     label:'Total Paid Out'    },
+          { val: 0, label:'Total Agents'      },
+          { val: 0, label:'Total Submissions' },
+          { val: '$0', label:'Total Paid Out'    },
         ].map(({ val, label }) => (
           <div key={label} style={{
             padding:'1.5rem 2rem', borderRight:'1px solid var(--border)', textAlign:'center',
