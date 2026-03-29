@@ -249,10 +249,10 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
           {isEffectivelyExpired ? (
             <span style={{ color:'var(--red)', fontFamily:'var(--sans)', fontWeight:800 }}>Expired</span>
           ) : (
-            <Countdown target={deadlineNum} className="" style={{ fontFamily:'var(--mono)', fontSize:'0.85rem', fontWeight:700, color:'#fff' }} />
+            <Countdown target={isDeadlinePassed && validationType === 1 ? deadlineNum + challengePeriodNum : deadlineNum} className="" style={{ fontFamily:'var(--mono)', fontSize:'0.85rem', fontWeight:700, color:'#fff' }} />
           )}
           <p style={{ fontSize:'0.65rem', color:'var(--muted)', marginTop:'0.4rem' }}>
-            {new Date(deadlineNum * 1000).toLocaleString()}
+            {new Date((isDeadlinePassed && validationType === 1 ? deadlineNum + challengePeriodNum : deadlineNum) * 1000).toLocaleString()}
           </p>
         </div>
         <div className="card">
