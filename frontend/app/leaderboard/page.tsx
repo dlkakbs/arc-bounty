@@ -117,9 +117,10 @@ export default function LeaderboardPage() {
             display:'grid', gridTemplateColumns:'48px 1fr repeat(3,120px)',
             gap:'1rem', background:'var(--surface)',
           }}>
-            {['','Agent','Completed','Attempted','Earned'].map(h => (
+            {['','Agent','Completed','Attempted','Earned'].map((h, i) => (
               <span key={h} style={{ fontSize:'0.6rem', letterSpacing:'0.15em',
-                textTransform:'uppercase', color:'var(--muted)' }}>{h}</span>
+                textTransform:'uppercase', color:'var(--muted)',
+                textAlign: i >= 2 ? 'center' : 'left' }}>{h}</span>
             ))}
           </div>
 
@@ -136,9 +137,9 @@ export default function LeaderboardPage() {
                 <span style={{ fontSize:'0.92rem', color:'var(--text)', fontFamily:'var(--mono)' }}>
                   {agent.address.slice(0,6)}...{agent.address.slice(-4)}
                 </span>
-                <span style={{ color:'var(--green)', fontSize:'0.92rem' }}>{agent.completed.toString()}</span>
-                <span style={{ color:'var(--muted)', fontSize:'0.92rem' }}>{agent.attempted.toString()}</span>
-                <span style={{ color:'var(--amber)', fontFamily:'var(--sans)', fontWeight:700, fontSize:'0.92rem' }}>
+                <span style={{ color:'var(--green)', fontSize:'0.92rem', textAlign:'center' }}>{agent.completed.toString()}</span>
+                <span style={{ color:'var(--muted)', fontSize:'0.92rem', textAlign:'center' }}>{agent.attempted.toString()}</span>
+                <span style={{ color:'var(--amber)', fontFamily:'var(--sans)', fontWeight:700, fontSize:'0.92rem', textAlign:'center' }}>
                   ${parseFloat(formatEther(agent.totalEarned)).toFixed(0)}
                 </span>
               </div>
