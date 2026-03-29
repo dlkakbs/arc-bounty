@@ -19,8 +19,7 @@ const IDENTITY_REGISTRY_ABI = [
             if (!publicClient) return;
                 const fetchAgents = async () => {
                       try {
-                              const latest = await publicClient.getBlockNumber();
-                                      const fromBlock = latest > BigInt(9999) ? latest - BigInt(9999) : BigInt(0);
+                              const fromBlock = BigInt(0);
                                               const logs = await publicClient.getLogs({
                                                         address: IDENTITY_REGISTRY,
                                                                   event: parseAbiItem("event Transfer(address indexed from, address indexed to, uint256 indexed tokenId)"),
