@@ -1,43 +1,26 @@
 "use client";
 
-import { useReadContract, useReadContracts, usePublicClient } from "wagmi";
+import { useReadContract, useReadContracts } from "wagmi";
 import { BOUNTY_REGISTRY_ADDRESS, BOUNTY_REGISTRY_ABI } from "@/lib/contract";
-import { formatEther, parseAbiItem } from "viem";
-import { useEffect, useState } from "react";
+import { formatEther } from "viem";
+import { useState } from "react";
 
 const IDENTITY_REGISTRY_ABI = [
-  { name: "balanceOf", type: "function", stateMutability: "view", inputs: [{ name: "owner", type: "address" }], outputs: [{ type: "uint256" }] },
+  { name: "balanceOf",   type: "function", stateMutability: "view", inputs: [{ name: "owner", type: "address" }], outputs: [{ type: "uint256" }] },
+  { name: "totalSupply", type: "function", stateMutability: "view", inputs: [], outputs: [{ type: "uint256" }] },
   ] as const;
   const IDENTITY_REGISTRY = "0x8004A818BFB912233c491871b3d84c89A494BD9e" as const;
 
   export default function Dashboard() {
-    const publicClient = usePublicClient();
-      const [registeredAgentCount, setRegisteredAgentCount] = useState(0);
       const [page, setPage] = useState(1);
 
-        useEffect(() => {
-            if (!publicClient) return;
-                const fetchAgents = async () => {
-                      try {
-                              const fromBlock = BigInt(0);
-                                              const logs = await publicClient.getLogs({
-                                                        address: IDENTITY_REGISTRY,
-                                                                  event: parseAbiItem("event Transfer(address indexed from, address indexed to, uint256 indexed tokenId)"),
-                                                                            fromBlock,
-                                                                                      toBlock: latest,
-                                                                                              });
-                                                                                                      const mints = logs.filter(
-                                                                                                                (l: any) => l.args?.from === "0x0000000000000000000000000000000000000000"
-                                                                                                                        );
-                                                                                                                                setRegisteredAgentCount(mints.length);
-                                                                                                                                      } catch (e) {
-                                                                                                                                              console.error("getLogs failed:", e);
-                                                                                                                                                    }
-                                                                                                                                                        };
-                                                                                                                                                            fetchAgents();
-                                                                                                                                                                const interval = setInterval(fetchAgents, 10_000);
-                                                                                                                                                                    return () => clearInterval(interval);
-                                                                                                                                                                      }, [publicClient]);
+      const { data: totalSupplyRaw } = useReadContract({
+        address: IDENTITY_REGISTRY,
+        abi: IDENTITY_REGISTRY_ABI,
+        functionName: "totalSupply",
+        query: { refetchInterval: 10_000 },
+      });
+      const registeredAgentCount = Number(totalSupplyRaw ?? 0);
 
                                                                                                                                                                         const { data: bountyCount } = useReadContract({
                                                                                                                                                                             address: BOUNTY_REGISTRY_ADDRESS,
