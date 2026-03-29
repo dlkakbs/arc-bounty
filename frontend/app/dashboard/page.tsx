@@ -1,9 +1,9 @@
 "use client";
 
-import { useReadContract, useReadContracts, usePublicClient } from "wagmi";
+import { useReadContract, useReadContracts } from "wagmi";
 import { BOUNTY_REGISTRY_ADDRESS, BOUNTY_REGISTRY_ABI } from "@/lib/contract";
-import { formatEther, parseAbiItem } from "viem";
-import { useState, useEffect } from "react";
+import { formatEther } from "viem";
+import { useState } from "react";
 
 const IDENTITY_REGISTRY_ABI = [
   { name: "balanceOf",   type: "function", stateMutability: "view", inputs: [{ name: "owner", type: "address" }], outputs: [{ type: "uint256" }] },
@@ -11,29 +11,7 @@ const IDENTITY_REGISTRY_ABI = [
   const IDENTITY_REGISTRY = "0x8004A818BFB912233c491871b3d84c89A494BD9e" as const;
 
   export default function Dashboard() {
-    const publicClient = usePublicClient();
     const [page, setPage] = useState(1);
-    const [registeredAgentCount, setRegisteredAgentCount] = useState(0);
-
-    useEffect(() => {
-      if (!publicClient) return;
-      const fetch = async () => {
-        try {
-          const logs = await publicClient.getLogs({
-            address: IDENTITY_REGISTRY,
-            event: parseAbiItem("event Transfer(address indexed from, address indexed to, uint256 indexed tokenId)"),
-            fromBlock: BigInt(0),
-          });
-          const mints = logs.filter((l: any) => l.args?.from === "0x0000000000000000000000000000000000000000");
-          setRegisteredAgentCount(mints.length);
-        } catch (e) {
-          console.error("getLogs failed:", e);
-        }
-      };
-      fetch();
-      const interval = setInterval(fetch, 15_000);
-      return () => clearInterval(interval);
-    }, [publicClient]);
 
                                                                                                                                                                         const { data: bountyCount } = useReadContract({
                                                                                                                                                                             address: BOUNTY_REGISTRY_ADDRESS,
