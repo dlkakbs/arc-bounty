@@ -3,7 +3,7 @@
 import { use, useState, useEffect } from "react";
 import { useAccount, useReadContract, useReadContracts, useWriteContract, useWaitForTransactionReceipt, usePublicClient } from "wagmi";
 import { BOUNTY_REGISTRY_ADDRESS, BOUNTY_REGISTRY_ABI } from "@/lib/contract";
-import { keccak256, toHex, formatEther } from "viem";
+import { keccak256, toHex, formatEther, parseAbiItem } from "viem";
 import { toast } from "sonner";
 import { Countdown } from "@/components/Countdown";
 
@@ -33,16 +33,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
     if (!publicClient) return;
     publicClient.getLogs({
       address: BOUNTY_REGISTRY_ADDRESS,
-      event: {
-        type: "event",
-        name: "ResultSubmitted",
-        inputs: [
-          { name: "bountyId", type: "uint256", indexed: true },
-          { name: "agent", type: "address", indexed: true },
-          { name: "resultHash", type: "bytes32", indexed: false },
-          { name: "result", type: "string", indexed: false },
-        ],
-      } as const,
+      event: parseAbiItem("event ResultSubmitted(uint256 indexed bountyId, address indexed agent, bytes32 resultHash, string result)"),
       fromBlock: BigInt(0),
     }).then((logs) => {
       const map: Record<string, string> = {};
@@ -109,6 +100,12 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
   const deadlineNum = Number(deadline);
   const challengePeriodNum = Number(challengePeriod);
   const isDeadlinePassed = now > deadlineNum;
+  // OPTIMISTIC: still "alive" until deadline + challengePeriod both pass
+  const isEffectivelyExpired = status === 0 && (
+    validationType === 1
+      ? now > deadlineNum + challengePeriodNum
+      : isDeadlinePassed
+  );
   const isCreator = userAddress?.toLowerCase() === creator.toLowerCase();
   const isValidator = userAddress?.toLowerCase() === validator.toLowerCase();
 
@@ -219,8 +216,8 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
           <h1 style={{ fontFamily:'var(--sans)', fontSize:'1.75rem', fontWeight:800, color:'#fff' }}>
             {title || `Bounty #${id}`}
           </h1>
-          <span className={`badge badge-${status === 0 && isDeadlinePassed ? 'red' : status === 0 ? 'green' : status === 1 ? 'blue' : 'red'}`}>
-            {status === 0 && isDeadlinePassed ? 'Expired' : statusInfo.label}
+          <span className={`badge badge-${isEffectivelyExpired ? 'red' : status === 0 ? 'green' : status === 1 ? 'blue' : 'red'}`}>
+            {isEffectivelyExpired ? 'Expired' : statusInfo.label}
           </span>
           <span className="badge badge-amber">{typeInfo.label}</span>
         </div>
@@ -247,9 +244,9 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
         {/* Row 1 */}
         <div className="card">
           <p style={{ fontSize:'0.6rem', letterSpacing:'0.15em', color:'var(--muted)', marginBottom:'0.5rem' }}>
-            {isDeadlinePassed ? 'DEADLINE PASSED' : 'TIME REMAINING'}
+            {isDeadlinePassed ? (validationType === 1 && !isEffectivelyExpired ? 'CHALLENGE PERIOD' : 'DEADLINE PASSED') : 'TIME REMAINING'}
           </p>
-          {isDeadlinePassed ? (
+          {isEffectivelyExpired ? (
             <span style={{ color:'var(--red)', fontFamily:'var(--sans)', fontWeight:800 }}>Expired</span>
           ) : (
             <Countdown target={deadlineNum} className="" style={{ fontFamily:'var(--mono)', fontSize:'0.85rem', fontWeight:700, color:'#fff' }} />

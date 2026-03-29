@@ -3,7 +3,7 @@
 import { use, useState, useEffect } from "react";
 import { useReadContract, useReadContracts, useAccount, usePublicClient } from "wagmi";
 import { BOUNTY_REGISTRY_ADDRESS, BOUNTY_REGISTRY_ABI } from "@/lib/contract";
-import { formatEther } from "viem";
+import { formatEther, parseAbiItem } from "viem";
 import { toast } from "sonner";
 
 export default function ProfilePage({ params }: { params: Promise<{ address: string }> }) {
@@ -26,16 +26,7 @@ export default function ProfilePage({ params }: { params: Promise<{ address: str
     if (!publicClient) return;
     publicClient.getLogs({
       address: BOUNTY_REGISTRY_ADDRESS,
-      event: {
-        type: "event",
-        name: "ResultSubmitted",
-        inputs: [
-          { name: "bountyId",   type: "uint256", indexed: true },
-          { name: "agent",      type: "address", indexed: true },
-          { name: "resultHash", type: "bytes32", indexed: false },
-          { name: "result",     type: "string",  indexed: false },
-        ],
-      } as const,
+      event: parseAbiItem("event ResultSubmitted(uint256 indexed bountyId, address indexed agent, bytes32 resultHash, string result)"),
       fromBlock: BigInt(0),
     }).then((logs) => {
       const map: Record<string, string> = {};
