@@ -44,7 +44,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
         ],
       } as const,
       args: { bountyId },
-      fromBlock: 0n,
+      fromBlock: BigInt(0),
     }).then((logs) => {
       const map: Record<string, string> = {};
       for (const log of logs) {

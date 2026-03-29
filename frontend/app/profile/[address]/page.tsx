@@ -37,7 +37,7 @@ export default function ProfilePage({ params }: { params: Promise<{ address: str
         ],
       } as const,
       args: { agent: agentAddress as `0x${string}` },
-      fromBlock: 0n,
+      fromBlock: BigInt(0),
     }).then((logs) => {
       const map: Record<string, string> = {};
       for (const log of logs) {
