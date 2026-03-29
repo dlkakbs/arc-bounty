@@ -92,6 +92,7 @@ body::after {
 .badge-amber { border-color: var(--amber); color: var(--amber); }
 .badge-red   { border-color: var(--red);   color: var(--red);   }
 .badge-muted { border-color: var(--border); color: var(--muted); }
+.badge-blue  { border-color: #4a9eff; color: #4a9eff; }
 
 .btn-primary {
   font-family: var(--mono);

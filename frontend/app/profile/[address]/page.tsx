@@ -170,7 +170,7 @@ export default function ProfilePage({ params }: { params: Promise<{ address: str
               : isRejected   ? 'REJECTED'
               : isChallenged ? 'CHALLENGED'
               : 'PENDING';
-            const badgeColor = isWinner || isApproved ? 'green'
+            const badgeColor = isWinner || isApproved ? 'blue'
               : isRejected ? 'red'
               : isChallenged ? 'amber'
               : 'muted';
