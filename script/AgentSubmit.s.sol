@@ -11,7 +11,7 @@ import {BountyRegistry} from "../src/BountyRegistry.sol";
 /// Dikkat: claimOptimistic için önce vm.warp ile zaman atlıyoruz (testnet'te
 /// gerçek süre beklenmez, cast send ile ayrı tx atılır).
 contract AgentSubmitScript is Script {
-    address constant BOUNTY_REGISTRY = 0xAB9177A08d5359057b603d62ee2181Ef825802c5;
+    address constant BOUNTY_REGISTRY = 0xD52fFD67b1AfC230EDaBAD66B5657aCDA385D645;
     uint256 constant BOUNTY_ID       = 1;
 
     function run() external {

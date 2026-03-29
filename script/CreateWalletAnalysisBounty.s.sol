@@ -16,7 +16,7 @@ import {BountyRegistry} from "../src/BountyRegistry.sol";
 ///     --env TARGET_WALLET=0x...   (analiz edilecek adres)
 ///     --env REWARD_USDC=2         (ödül miktarı, integer)
 contract CreateWalletAnalysisBountyScript is Script {
-    address constant BOUNTY_REGISTRY = 0xAB9177A08d5359057b603d62ee2181Ef825802c5;
+    address constant BOUNTY_REGISTRY = 0xD52fFD67b1AfC230EDaBAD66B5657aCDA385D645;
 
     function run() external {
         uint256 deployerKey   = vm.envUint("PRIVATE_KEY");
