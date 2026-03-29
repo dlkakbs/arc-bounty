@@ -43,11 +43,12 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
           { name: "result", type: "string", indexed: false },
         ],
       } as const,
-      args: { bountyId },
       fromBlock: BigInt(0),
     }).then((logs) => {
       const map: Record<string, string> = {};
       for (const log of logs) {
+        const logBountyId = (log.args as any).bountyId as bigint | undefined;
+        if (logBountyId !== undefined && logBountyId !== bountyId) continue;
         const agent = (log.args as any).agent as string;
         const result = (log.args as any).result as string;
         if (agent && result) map[agent.toLowerCase()] = result;

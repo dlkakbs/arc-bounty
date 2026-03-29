@@ -21,7 +21,7 @@ export default function ProfilePage({ params }: { params: Promise<{ address: str
     setTimeout(() => setCopied(false), 2000);
   };
 
-  // Fetch all ResultSubmitted events for this agent → bountyId → result text
+  // Fetch all ResultSubmitted events (no args filter for RPC compat), filter in JS
   useEffect(() => {
     if (!publicClient) return;
     publicClient.getLogs({
@@ -30,20 +30,22 @@ export default function ProfilePage({ params }: { params: Promise<{ address: str
         type: "event",
         name: "ResultSubmitted",
         inputs: [
-          { name: "bountyId", type: "uint256", indexed: true },
-          { name: "agent",    type: "address", indexed: true },
+          { name: "bountyId",   type: "uint256", indexed: true },
+          { name: "agent",      type: "address", indexed: true },
           { name: "resultHash", type: "bytes32", indexed: false },
-          { name: "result",   type: "string",  indexed: false },
+          { name: "result",     type: "string",  indexed: false },
         ],
       } as const,
-      args: { agent: agentAddress as `0x${string}` },
       fromBlock: BigInt(0),
     }).then((logs) => {
       const map: Record<string, string> = {};
       for (const log of logs) {
+        const agent    = ((log.args as any).agent as string)?.toLowerCase();
         const bountyId = String((log.args as any).bountyId);
         const result   = (log.args as any).result as string;
-        if (bountyId && result) map[bountyId] = result;
+        if (agent === agentAddress.toLowerCase() && bountyId && result) {
+          map[bountyId] = result;
+        }
       }
       setResultTexts(map);
     }).catch(() => {});
