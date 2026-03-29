@@ -63,6 +63,17 @@ const IDENTITY_REGISTRY_ABI = [
                                                                                                                                                                                                                                                                                                                                     const openBounties = bounties.filter((b) => b && b[9] === 0);
                                                                                                                                                                                                                                                                                                                                       const totalLocked = openBounties.reduce((acc: bigint, b: any) => acc + BigInt(b[4] ?? 0), BigInt(0));
                                                                                                                                                                                                                                                                                                                                         const totalAgents = new Set(submissions.flat().map((s: any) => s?.agent).filter(Boolean)).size;
+          const uniqueAgentAddrs = Array.from(new Set(submissions.flat().map((s: any) => s?.agent?.toLowerCase()).filter(Boolean))) as string[];
+          const agentIdentityReads = useReadContracts({
+            contracts: uniqueAgentAddrs.map((addr) => ({
+              address: IDENTITY_REGISTRY,
+              abi: IDENTITY_REGISTRY_ABI,
+              functionName: "balanceOf" as const,
+              args: [addr as `0x${string}`],
+            })),
+            query: { refetchInterval: 10_000 },
+          });
+          const registeredAgentCount = (agentIdentityReads.data ?? []).filter((d) => Number(d.result ?? 0) > 0).length;
                                                                                                                                                                                                                                                                                                                                           const now = Math.floor(Date.now() / 1000);
           const PER_PAGE = 10;
           const sortedIds = [...ids].sort((a, b) => {
